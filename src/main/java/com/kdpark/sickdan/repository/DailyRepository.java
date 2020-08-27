@@ -1,7 +1,6 @@
 package com.kdpark.sickdan.repository;
 
 import com.kdpark.sickdan.domain.Daily;
-import com.kdpark.sickdan.domain.DailyId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -18,7 +17,7 @@ public class DailyRepository {
         em.persist(daily);
     }
 
-    public Daily findById(DailyId id) {
+    public Daily findById(Daily.DailyId id) {
         return em.find(Daily.class, id);
     }
 
@@ -27,7 +26,7 @@ public class DailyRepository {
                 "select d " +
                         "from Daily d " +
                         "where d.member.id = :memberId " +
-                        "and d.dailyId.date = :yyyymmdd", Daily.class)
+                        "and d.id.date = :yyyymmdd", Daily.class)
                 .setParameter("memberId", memberId)
                 .setParameter("yyyymmdd", yyyymmdd)
                 .getResultList();
@@ -40,7 +39,7 @@ public class DailyRepository {
                 "select d " +
                         "from Daily d " +
                         "where d.member.id = :memberId " +
-                        "and d.dailyId.date like :yyyymm", Daily.class)
+                        "and d.id.date like :yyyymm", Daily.class)
                 .setParameter("memberId", memberId)
                 .setParameter("yyyymm", yyyymm + "%")
                 .getResultList();

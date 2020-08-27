@@ -17,14 +17,14 @@ public class MealService {
     private final DailyRepository dailyRepository;
     private final MemberRepository memberRepository;
 
-    public Long record(DailyId dailyId, String description, MealCategory category) {
+    public Long record(Daily.DailyId dailyId, String description, MealCategory category) {
         Daily daily = dailyRepository.findById(dailyId);
 
         // TODO: this is for test. rewrite it
         if (daily == null) {
             Member member = memberRepository.findById(dailyId.getMemberId());
             daily = Daily.builder()
-                    .dailyId(dailyId)
+                    .id(dailyId)
                     .member(member)
                     .build();
         }

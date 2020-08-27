@@ -3,6 +3,7 @@ package com.kdpark.sickdan.domain;
 import lombok.Getter;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Getter
@@ -24,6 +25,9 @@ public class Meal {
         @JoinColumn(name = "date", referencedColumnName = "date")
     })
     private Daily daily;
+
+    @OneToMany(mappedBy = "meal", cascade = CascadeType.ALL)
+    private List<MealPhoto> photos;
 
     protected Meal() {}
 

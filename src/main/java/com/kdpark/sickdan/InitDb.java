@@ -38,7 +38,7 @@ public class InitDb {
             em.persist(member);
 
             Daily daily1 = Daily.builder()
-                    .dailyId(new DailyId(member.getId(), "20200815"))
+                    .id(new Daily.DailyId(member.getId(), "20200815"))
                     .bodyWeight(75)
                     .walkCount(10000)
                     .member(member)
@@ -52,7 +52,7 @@ public class InitDb {
 
 
             Daily daily2 = Daily.builder()
-                    .dailyId(new DailyId(member.getId(), "20200816"))
+                    .id(new Daily.DailyId(member.getId(), "20200816"))
                     .bodyWeight(76)
                     .walkCount(9000)
                     .member(member)
@@ -64,6 +64,71 @@ public class InitDb {
             daily2.recordMeal(Meal.createMeal("icecream2", MealCategory.DINNER));
 
             em.persist(daily2);
+
+
+            Member member2 = Member.builder()
+                    .email("wert1220@naver.com")
+                    .password("{noop}1234")
+                    .displayName("wert1")
+                    .roles(Collections.singletonList("ROLE_USER"))
+                    .build();
+
+            em.persist(member2);
+
+            Daily daily3 = Daily.builder()
+                    .id(new Daily.DailyId(member2.getId(), "20200815"))
+                    .bodyWeight(50)
+                    .walkCount(20000)
+                    .member(member2)
+                    .build();
+            daily3.recordMeal(Meal.createMeal("pizza3", MealCategory.BREAKFAST));
+            daily3.recordMeal(Meal.createMeal("rice3", MealCategory.LUNCH));
+            daily3.recordMeal(Meal.createMeal("chicken3", MealCategory.DINNER));
+            daily3.recordMeal(Meal.createMeal("icecream3", MealCategory.DINNER));
+
+            em.persist(daily3);
+
+
+            Daily daily4 = Daily.builder()
+                    .id(new Daily.DailyId(member2.getId(), "20200816"))
+                    .bodyWeight(52)
+                    .walkCount(19000)
+                    .member(member2)
+                    .build();
+
+            daily4.recordMeal(Meal.createMeal("pizza4", MealCategory.BREAKFAST));
+            daily4.recordMeal(Meal.createMeal("rice4", MealCategory.LUNCH));
+            daily4.recordMeal(Meal.createMeal("chicken4", MealCategory.DINNER));
+            daily4.recordMeal(Meal.createMeal("icecream4", MealCategory.DINNER));
+
+            em.persist(daily4);
+
+            MemberRelationship relating = MemberRelationship.builder()
+                    .id(new MemberRelationship.MemberRelationshipId(member.getId(), member2.getId()))
+                    .relatingMember(member)
+                    .relatedMember(member2)
+                    .status(RelationshipStatus.REQUESTING)
+                    .build();
+
+            MemberRelationship related = MemberRelationship.builder()
+                    .id(new MemberRelationship.MemberRelationshipId(member2.getId(), member.getId()))
+                    .relatingMember(member2)
+                    .relatedMember(member)
+                    .status(RelationshipStatus.REQUESTED)
+                    .build();
+
+            em.persist(relating);
+            em.persist(related);
+
+            Member member3 = Member.builder()
+                    .email("wert1228@naver.com")
+                    .password("{noop}1234")
+                    .displayName("requestTest")
+                    .roles(Collections.singletonList("ROLE_USER"))
+                    .build();
+
+            em.persist(member3);
         }
+
     }
 }

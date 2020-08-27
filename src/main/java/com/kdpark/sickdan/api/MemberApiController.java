@@ -1,8 +1,7 @@
 package com.kdpark.sickdan.api;
 
-import com.kdpark.sickdan.domain.Member;
 import com.kdpark.sickdan.service.MemberService;
-import lombok.Data;
+import com.kdpark.sickdan.service.MemberService.MemberInfoDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,20 +13,23 @@ public class MemberApiController {
 
     @GetMapping("/api/v1/members/{id}")
     public MemberInfoDto getMemberV1(@PathVariable Long id) {
-        Member member = memberService.findById(id);
-        return new MemberInfoDto(member.getId(), member.getEmail(), member.getDisplayName());
+        return memberService.findById(id);
     }
 
-    @Data
-    static class MemberInfoDto {
-        private Long id;
-        private String email;
-        private String displayName;
-
-        public MemberInfoDto(Long id, String email, String displayName) {
-            this.id = id;
-            this.email = email;
-            this.displayName = displayName;
-        }
+    @GetMapping("/api/v1/members/me")
+    public MemberInfoDto getAuthMemberV1(@RequestAttribute Long member_id) {
+        return memberService.findById(member_id);
     }
+
+    @GetMapping("/api/v1/members")
+    public MemberService.FriendSearchResult searchFriendByEmail(@RequestParam String email, @RequestAttribute Long member_id) {
+        return memberService.searchByEmail(email, member_id);
+    }
+
+    @PostMapping("/api/v1/members/relationships")
+    public void requestFriend(@RequestBody Long relatedId, @RequestAttribute Long member_id) {
+        memberService.requestFriend(member_id, relatedId);
+    }
+
+
 }

@@ -16,8 +16,6 @@ import java.util.stream.Collectors;
 @Entity
 @Getter
 //@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Builder
-@AllArgsConstructor
 public class Member implements UserDetails {
 
     @Id @GeneratedValue
@@ -37,7 +35,19 @@ public class Member implements UserDetails {
     @OneToMany(mappedBy = "member")
     private List<Daily> dailies = new ArrayList<>();
 
+    @OneToMany(mappedBy = "relatingMember", cascade = CascadeType.ALL)
+    private List<MemberRelationship> relationships = new ArrayList<>();
+
     protected Member() {}
+
+    @Builder
+    public Member(Long id, String email, String password, String displayName, List<String> roles) {
+        this.id = id;
+        this.email = email;
+        this.password = password;
+        this.displayName = displayName;
+        this.roles = roles;
+    }
 
     //==스프링 시큐리티 관련==//
     @Override

@@ -14,7 +14,11 @@ spring:
     open-in-view: false
   jwt:
     secret-key: kdPark
+  servlet:
+    multipart:
+
 
 logging:
   level:
     org.hibernate.SQL: debug
+filepath:

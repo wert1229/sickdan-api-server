@@ -19,10 +19,10 @@ import java.util.*;
 @RequiredArgsConstructor
 public class JwtTokenProvider {
 
-    @Value("spring.jwt.secret-key")
+    @Value("${spring.jwt.secret-key}")
     private String secretKey;
 
-    private final long tokenValidTime = 30 * 60 * 1000L;
+    private final long tokenValidTime = 60 * 60 * 1000L; //30분
 
     @PostConstruct
     protected void init() {

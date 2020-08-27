@@ -1,6 +1,7 @@
 package com.kdpark.sickdan.repository;
 
 import com.kdpark.sickdan.domain.Member;
+import com.kdpark.sickdan.domain.MemberRelationship;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -13,7 +14,7 @@ public class MemberRepository {
 
     private final EntityManager em;
 
-    public void save(Member member) {
+    public void saveMember(Member member) {
         em.persist(member);
     }
 
@@ -30,5 +31,9 @@ public class MemberRepository {
                 .getResultList();
 
         return result.isEmpty() ? null : result.get(0);
+    }
+
+    public void saveRelation(MemberRelationship relationship){
+        em.persist(relationship);
     }
 }
