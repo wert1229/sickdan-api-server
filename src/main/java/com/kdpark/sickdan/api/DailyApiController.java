@@ -29,7 +29,7 @@ public class DailyApiController {
     @GetMapping("/api/v1/members/me/dailies")
     public List<MonthDailyDto> getMonthData(@RequestParam String yyyymm, @RequestAttribute Long member_id) {
         List<MonthDailyDto> monthData = dailyQueryService.getMonthData(member_id, yyyymm);
-
+        //dockerTest
         return monthData;
     }
 
