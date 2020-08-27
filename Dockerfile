@@ -10,4 +10,4 @@ ARG JAR_FILE=target/sickdan-0.0.1-SNAPSHOT.jar
 
 ADD ${JAR_FILE} sickdan.jar
 
-ENRTYPOINT ["java", "-jar", "/sickdan"]
+ENTRYPOINT ["java", "-jar", "/sickdan"]
