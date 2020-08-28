@@ -2,18 +2,18 @@ package com.kdpark.sickdan.api;
 
 import com.kdpark.sickdan.domain.Daily;
 import com.kdpark.sickdan.domain.MealCategory;
-import com.kdpark.sickdan.service.DailyService;
 import com.kdpark.sickdan.service.MealService;
+import com.kdpark.sickdan.service.S3Service;
 import com.kdpark.sickdan.service.query.DailyQueryService;
-import com.kdpark.sickdan.service.query.DailyQueryService.*;
+import com.kdpark.sickdan.service.query.DailyQueryService.DayDailyDto;
+import com.kdpark.sickdan.service.query.DailyQueryService.MonthDailyDto;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpSession;
-import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,14 +22,14 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class DailyApiController {
 
-    private final DailyService dailyService;
     private final MealService mealService;
     private final DailyQueryService dailyQueryService;
+    private final S3Service s3Service;
 
     @GetMapping("/api/v1/members/me/dailies")
     public List<MonthDailyDto> getMonthData(@RequestParam String yyyymm, @RequestAttribute Long member_id) {
         List<MonthDailyDto> monthData = dailyQueryService.getMonthData(member_id, yyyymm);
-        //dockerTest
+
         return monthData;
     }
 
@@ -64,18 +64,16 @@ public class DailyApiController {
     }
 
     @PostMapping("/api/v1/meals/{mealId}/photos")
-    public void uploadMealPhoto(@PathVariable Long mealId, @RequestPart MultipartFile files, HttpSession session) {
+    public void uploadMealPhoto(@PathVariable Long mealId, @RequestPart MultipartFile file) {
         try {
-            String originFileName = files.getOriginalFilename();
-            String filename = String.format("%s_%s", UUID.randomUUID().toString(), originFileName);
-            String savePath = System.getProperty("user.dir") + "/src/main/resources/static/images";
+            String originFileName = file.getOriginalFilename();
+            String ext = originFileName.substring(originFileName.lastIndexOf(".") + 1);
+            String fileName = String.format("%d_%s.%s", mealId, UUID.randomUUID().toString(), ext);
 
-            if (!new File(savePath).exists()) new File(savePath).mkdir();
+            String url = s3Service.upload(file, fileName);
 
-            String filePath = savePath + "/" + filename;
-            files.transferTo(new File(filePath));
-
-        } catch(Exception e) {
+            //TODO: DB 저장
+        } catch(IOException e) {
             e.printStackTrace();
         }
     }
