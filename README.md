@@ -12,12 +12,9 @@
 ## jpa 관련
 
 ## JWT 및 OAuth2관련
-### OAuth2 소셜 로그인의 몇가지 방식중 implicit 방식과 authorization code 방식을 고민해봄
-### 네이버 및 카카오 등에서 기본적으로 안드로이드에 제공하는 방식은 implicit 방식이다.(access token을 바로 리턴함)
-### 이 방식 사용 시 client secret key 및 access 토큰이 앱 내부에서 직접 명시되고 사용됨
-### 따라서 앱 내부 브라우저를 이용해서 authorization code 방식으로 진행하기로함
-### 흐름 : 앱 로그인 -> 네이버 로그인 브라우저 호출 -> 스프링 서버로 Redirect -> 브라우저로 authorization code 
-###       -> 앱으로 authorization code -> authorization code로 회원가입 및 로그인
+### OAuth2를 업체에서 제공하는 방식은 주로 authorization code 방식인듯하다.
+### 흐름 : 앱 로그인 -> (authorization code 제공 -> authorization code으로 Access Token 제공) -> 앱에서 서버로 Access Token을 넘겨주고 서버는 유저정보 받아옴
+###       -> 유저있으면 JWT토큰 발급 없으면 유저생성 후 발급
 
 ## Service구조 관련
 
