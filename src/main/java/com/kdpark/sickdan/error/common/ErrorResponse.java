@@ -18,7 +18,6 @@ public class ErrorResponse {
     private List<FieldError> errors;
     private String code;
 
-
     private ErrorResponse(final ErrorCode code, final List<FieldError> errors) {
         this.message = code.getMessage();
         this.status = code.getStatus();
@@ -33,9 +32,20 @@ public class ErrorResponse {
         this.errors = new ArrayList<>();
     }
 
+    private ErrorResponse(final ErrorCode code, String message) {
+        this.message = message;
+        this.status = code.getStatus();
+        this.code = code.getCode();
+        this.errors = new ArrayList<>();
+    }
+
 
     public static ErrorResponse of(final ErrorCode code, final BindingResult bindingResult) {
         return new ErrorResponse(code, FieldError.of(bindingResult));
+    }
+
+    public static ErrorResponse of(final ErrorCode code, final String message) {
+        return new ErrorResponse(code, message);
     }
 
     public static ErrorResponse of(final ErrorCode code) {

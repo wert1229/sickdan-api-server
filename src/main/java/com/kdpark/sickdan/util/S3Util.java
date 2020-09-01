@@ -1,4 +1,4 @@
-package com.kdpark.sickdan.service;
+package com.kdpark.sickdan.util;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
@@ -14,11 +14,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.util.UUID;
 
 @Service
 @NoArgsConstructor
-public class S3Service {
+public class S3Util {
     private AmazonS3 s3Client;
 
     @Value("${cloud.aws.credentials.accessKey}")

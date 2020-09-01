@@ -23,7 +23,7 @@ public class MemberApiController {
 
     @GetMapping("/api/v1/members")
     public MemberService.FriendSearchResult searchFriendByEmail(@RequestParam String email, @RequestAttribute Long member_id) {
-        return memberService.searchByEmail(email, member_id);
+        return memberService.searchByEmailWithRelationInfo(email, member_id);
     }
 
     @PostMapping("/api/v1/members/relationships")

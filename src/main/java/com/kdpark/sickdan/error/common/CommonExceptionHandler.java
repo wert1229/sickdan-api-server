@@ -1,6 +1,7 @@
 package com.kdpark.sickdan.error.common;
 
-import com.kdpark.sickdan.error.exception.MemberNotFoundException;
+import com.kdpark.sickdan.error.exception.FileReadException;
+import com.kdpark.sickdan.error.exception.EntityNotFoundException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,10 +11,17 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 @Log4j2
 public class CommonExceptionHandler {
-    @ExceptionHandler(MemberNotFoundException.class)
-    protected ResponseEntity<ErrorResponse> handleBindException(MemberNotFoundException e) {
-        log.error("UserNotFoundException", e);
-        final ErrorResponse response = ErrorResponse.of(ErrorCode.INVALID_INPUT_VALUE);
+    @ExceptionHandler(EntityNotFoundException.class)
+    protected ResponseEntity<ErrorResponse> handleBindException(EntityNotFoundException e) {
+        log.error("EntityNotFoundException", e);
+        final ErrorResponse response = ErrorResponse.of(e.getErrorCode(), e.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(FileReadException.class)
+    protected ResponseEntity<ErrorResponse> handleIOException(FileReadException e) {
+        log.error("FileReadException", e);
+        final ErrorResponse response = ErrorResponse.of(e.getErrorCode());
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 

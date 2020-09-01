@@ -21,19 +21,6 @@ public class DailyRepository {
         return em.find(Daily.class, id);
     }
 
-    public Daily findOneDay(Long memberId, String yyyymmdd) {
-        List<Daily> resultList = em.createQuery(
-                "select d " +
-                        "from Daily d " +
-                        "where d.member.id = :memberId " +
-                        "and d.id.date = :yyyymmdd", Daily.class)
-                .setParameter("memberId", memberId)
-                .setParameter("yyyymmdd", yyyymmdd)
-                .getResultList();
-
-        return resultList.isEmpty() ? null : resultList.get(0);
-    }
-
     public List<Daily> findOneMonth(Long memberId, String yyyymm) {
         return em.createQuery(
                 "select d " +

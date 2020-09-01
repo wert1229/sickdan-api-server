@@ -1,5 +1,6 @@
 package com.kdpark.sickdan.domain;
 
+import lombok.Builder;
 import lombok.Getter;
 
 import javax.persistence.*;
@@ -16,7 +17,7 @@ public class MealPhoto {
 
     private String fileName;
 
-    private String filePath;
+    private String fileUrl;
 
     private Long fileSize;
 
@@ -26,10 +27,13 @@ public class MealPhoto {
 
     protected MealPhoto() {}
 
-    public MealPhoto(Long id, String fileName, String filePath, Meal meal) {
+    @Builder
+    public MealPhoto(Long id, String fileOriginName, String fileName, String fileUrl, Long fileSize, Meal meal) {
         this.id = id;
+        this.fileOriginName = fileOriginName;
         this.fileName = fileName;
-        this.filePath = filePath;
+        this.fileUrl = fileUrl;
+        this.fileSize = fileSize;
         setMeal(meal);
     }
 

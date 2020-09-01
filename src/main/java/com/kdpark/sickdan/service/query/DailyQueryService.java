@@ -1,8 +1,10 @@
 package com.kdpark.sickdan.service.query;
 
-import com.kdpark.sickdan.domain.*;
+import com.kdpark.sickdan.domain.Daily;
+import com.kdpark.sickdan.domain.Meal;
+import com.kdpark.sickdan.domain.MealCategory;
+import com.kdpark.sickdan.domain.MealPhoto;
 import com.kdpark.sickdan.repository.DailyRepository;
-import com.kdpark.sickdan.repository.MemberRepository;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,13 +19,12 @@ import java.util.stream.Collectors;
 public class DailyQueryService {
 
     private final DailyRepository dailyRepository;
-    private final MemberRepository memberRepository;
 
     public List<MonthDailyDto> getMonthData(Long memberId, String yyyymm) {
         List<Daily> monthData = dailyRepository.findOneMonth(memberId, yyyymm);
 
         return monthData.stream()
-                .map(d -> new MonthDailyDto(d))
+                .map(MonthDailyDto::new)
                 .collect(Collectors.toList());
     }
 
@@ -69,22 +70,26 @@ public class DailyQueryService {
             this.walkCount = daily.getWalkCount();
             this.bodyWeight = daily.getBodyWeight();
             this.meals = daily.getMeals().stream()
-                    .map(m -> new MealDto(m))
+                    .map(MealDto::new)
                     .collect(Collectors.toList());
         }
     }
 
     @Data
     static class MealDto {
+        private Long id;
         private String description;
         private MealCategory category;
+        private Long prevMeal;
         private List<MealPhotoDto> photos;
 
         public MealDto(Meal meal) {
+            this.id = meal.getId();
             this.description = meal.getDescription();
             this.category = meal.getCategory();
+            this.prevMeal = meal.getPrevMeal();
             this.photos = meal.getPhotos().stream()
-                    .map(p -> new MealPhotoDto(p))
+                    .map(MealPhotoDto::new)
                     .collect(Collectors.toList());
         }
     }

@@ -2,7 +2,7 @@ package com.kdpark.sickdan.api;
 
 import com.kdpark.sickdan.domain.Member;
 import com.kdpark.sickdan.error.common.ErrorCode;
-import com.kdpark.sickdan.error.exception.MemberNotFoundException;
+import com.kdpark.sickdan.error.exception.EntityNotFoundException;
 import com.kdpark.sickdan.security.JwtTokenProvider;
 import com.kdpark.sickdan.service.MemberService;
 import lombok.Data;
@@ -40,7 +40,7 @@ public class AuthApiController {
         Member member = memberService.findByEmail(request.getEmail());
 
         if (member == null)
-            throw new MemberNotFoundException("멤버를 찾을 수 없음", ErrorCode.ENTITY_NOT_FOUND);
+            throw new EntityNotFoundException("멤버를 찾을 수 없음", ErrorCode.ENTITY_NOT_FOUND);
         if (!passwordEncoder.matches(request.getPassword(), member.getPassword()))
             throw new IllegalArgumentException("비밀번호 불일치");
 

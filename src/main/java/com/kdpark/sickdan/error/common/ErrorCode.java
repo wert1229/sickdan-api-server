@@ -4,8 +4,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum ErrorCode {
-    INVALID_INPUT_VALUE(400, "C001", " Invalid Input Value"),
-    ENTITY_NOT_FOUND(400, "C002", "Entity Not Found");
+    INVALID_INPUT_VALUE(400, "C001", "Some input values are invaild"),
+    ENTITY_NOT_FOUND(400, "C002", "Can't find the entity"),
+    INTERNAL_IO_FAILED(400, "C003", "Internal IO failed for some reason");
 
     private final String code;
     private final String message;

@@ -4,7 +4,7 @@ import com.kdpark.sickdan.domain.Member;
 import com.kdpark.sickdan.domain.MemberRelationship;
 import com.kdpark.sickdan.domain.RelationshipStatus;
 import com.kdpark.sickdan.error.common.ErrorCode;
-import com.kdpark.sickdan.error.exception.MemberNotFoundException;
+import com.kdpark.sickdan.error.exception.EntityNotFoundException;
 import com.kdpark.sickdan.repository.MemberRepository;
 import lombok.Builder;
 import lombok.Data;
@@ -38,10 +38,10 @@ public class MemberService {
         return memberRepository.findByEmail(email);
     }
 
-    public FriendSearchResult searchByEmail(String email, Long member_id) {
+    public FriendSearchResult searchByEmailWithRelationInfo(String email, Long member_id) {
         Member findMember = memberRepository.findByEmail(email);
 
-        if (findMember == null) throw new MemberNotFoundException("검색결과없음", ErrorCode.ENTITY_NOT_FOUND);
+        if (findMember == null) throw new EntityNotFoundException("검색결과없음", ErrorCode.ENTITY_NOT_FOUND);
 
         Member member = memberRepository.findById(member_id);
         Map<Member, MemberRelationship> map = member.getRelationships().stream()
