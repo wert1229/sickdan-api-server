@@ -34,6 +34,10 @@ public class MemberService {
         return new MemberInfoDto(member);
     }
 
+    public Member findByUserId(String userId) {
+        return memberRepository.findByUserId(userId);
+    }
+
     public Member findByEmail(String email) {
         return memberRepository.findByEmail(email);
     }
@@ -79,6 +83,8 @@ public class MemberService {
                         .build()
         );
     }
+
+
 
     @Data
     static public class FriendSearchResult {

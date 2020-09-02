@@ -6,6 +6,7 @@ import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Controller;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -22,11 +23,17 @@ public class Member implements UserDetails {
     @Column(name = "member_id")
     private Long id;
 
-    private String email;
+    @Column(unique = true)
+    private String userId;
 
     private String password;
 
+    private String email;
+
     private String displayName;
+
+    @Enumerated(EnumType.STRING)
+    private Provider provider;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default
@@ -41,11 +48,13 @@ public class Member implements UserDetails {
     protected Member() {}
 
     @Builder
-    public Member(Long id, String email, String password, String displayName, List<String> roles) {
+    public Member(Long id, String userId, String email, String password, String displayName, Provider provider, List<String> roles) {
         this.id = id;
+        this.userId = userId;
         this.email = email;
         this.password = password;
         this.displayName = displayName;
+        this.provider = provider;
         this.roles = roles;
     }
 

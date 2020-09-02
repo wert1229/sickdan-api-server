@@ -6,7 +6,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 public enum ErrorCode {
     INVALID_INPUT_VALUE(400, "C001", "Some input values are invaild"),
     ENTITY_NOT_FOUND(400, "C002", "Can't find the entity"),
-    INTERNAL_IO_FAILED(400, "C003", "Internal IO failed for some reason");
+    INTERNAL_IO_FAILED(400, "C003", "Internal IO failed for some reason"),
+    EXTERNAL_IO_FAILED(400, "C004", "External IO failed for some reason");
 
     private final String code;
     private final String message;
