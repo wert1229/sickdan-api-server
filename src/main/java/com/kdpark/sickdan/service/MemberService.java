@@ -84,8 +84,6 @@ public class MemberService {
         );
     }
 
-
-
     @Data
     static public class FriendSearchResult {
         private Long id;
