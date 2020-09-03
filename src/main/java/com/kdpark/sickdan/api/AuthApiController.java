@@ -59,7 +59,7 @@ public class AuthApiController {
 
         if (member == null || member.getProvider() != Provider.LOCAL)
             throw new EntityNotFoundException("멤버를 찾을 수 없음", ErrorCode.ENTITY_NOT_FOUND);
-        if (!passwordEncoder.matches(request.getPassword(), member.getPassword()))
+        if (!passwordEncoder.matches("{noop}" + request.getPassword(), member.getPassword()))
             throw new PasswordNotCorrectException("비밀번호 불일치", ErrorCode.INVALID_INPUT_VALUE);
 
         String token = jwtTokenProvider.createToken(String.valueOf(member.getId()), member.getRoles());
