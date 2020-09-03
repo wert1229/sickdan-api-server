@@ -8,6 +8,7 @@ import com.kdpark.sickdan.domain.Provider;
 import com.kdpark.sickdan.error.common.ErrorCode;
 import com.kdpark.sickdan.error.exception.AuthProviderException;
 import com.kdpark.sickdan.error.exception.EntityNotFoundException;
+import com.kdpark.sickdan.error.exception.PasswordNotCorrectException;
 import com.kdpark.sickdan.repository.MemberRepository;
 import com.kdpark.sickdan.security.JwtTokenProvider;
 import com.kdpark.sickdan.service.MemberService;
@@ -59,7 +60,7 @@ public class AuthApiController {
         if (member == null || member.getProvider() != Provider.LOCAL)
             throw new EntityNotFoundException("멤버를 찾을 수 없음", ErrorCode.ENTITY_NOT_FOUND);
         if (!passwordEncoder.matches(request.getPassword(), member.getPassword()))
-            throw new IllegalArgumentException("비밀번호 불일치");
+            throw new PasswordNotCorrectException("비밀번호 불일치", ErrorCode.INVALID_INPUT_VALUE);
 
         String token = jwtTokenProvider.createToken(String.valueOf(member.getId()), member.getRoles());
 
