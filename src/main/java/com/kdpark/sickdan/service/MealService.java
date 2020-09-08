@@ -10,8 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
-
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -63,5 +61,9 @@ public class MealService {
     public void editMeal(Long mealId, String desc) {
         Meal meal = mealReposity.findById(mealId);
         meal.setDescription(desc);
+    }
+
+    public void delete(Long mealId) {
+        mealReposity.delete(mealId);
     }
 }

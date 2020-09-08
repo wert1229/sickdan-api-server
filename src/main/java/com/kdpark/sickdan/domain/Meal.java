@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -14,6 +15,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EntityListeners(AuditingEntityListener.class)
 public class Meal {
 
     @Id @GeneratedValue
@@ -26,11 +28,9 @@ public class Meal {
     private MealCategory category;
 
     @CreatedDate
-    @Column(nullable = false)
     private LocalDateTime createdDateTime;
 
     @LastModifiedDate
-    @Column(nullable = false)
     private LocalDateTime updatedDateTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -61,5 +61,13 @@ public class Meal {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public void setCreatedDateTime(LocalDateTime createdDateTime) {
+        this.createdDateTime = createdDateTime;
+    }
+
+    public void setUpdatedDateTime(LocalDateTime updatedDateTime) {
+        this.updatedDateTime = updatedDateTime;
     }
 }

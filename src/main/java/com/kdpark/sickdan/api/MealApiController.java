@@ -42,7 +42,8 @@ public class MealApiController {
 
     @DeleteMapping("/api/v1/meals/{mealId}")
     public void deleteMeal(@PathVariable Long mealId) {
-        mealReposity.delete(mealId);
+        mealService.delete(mealId);
+
     }
 
     @PostMapping("/api/v1/meals/{mealId}/photos")
