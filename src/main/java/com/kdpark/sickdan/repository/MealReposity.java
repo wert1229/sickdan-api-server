@@ -19,4 +19,8 @@ public class MealReposity {
     public Meal findById(Long id) {
         return em.find(Meal.class, id);
     }
+
+    public void delete(Long id) {
+        em.remove(em.find(Meal.class, id));
+    }
 }

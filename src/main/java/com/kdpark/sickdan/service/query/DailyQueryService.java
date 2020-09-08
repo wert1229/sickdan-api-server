@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -70,6 +71,7 @@ public class DailyQueryService {
             this.walkCount = daily.getWalkCount();
             this.bodyWeight = daily.getBodyWeight();
             this.meals = daily.getMeals().stream()
+                    .sorted(Comparator.comparing(Meal::getCreatedDateTime))
                     .map(MealDto::new)
                     .collect(Collectors.toList());
         }
@@ -80,14 +82,12 @@ public class DailyQueryService {
         private Long id;
         private String description;
         private MealCategory category;
-        private Long prevMeal;
         private List<MealPhotoDto> photos;
 
         public MealDto(Meal meal) {
             this.id = meal.getId();
             this.description = meal.getDescription();
             this.category = meal.getCategory();
-            this.prevMeal = meal.getPrevMeal();
             this.photos = meal.getPhotos().stream()
                     .map(MealPhotoDto::new)
                     .collect(Collectors.toList());

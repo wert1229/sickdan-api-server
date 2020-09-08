@@ -46,12 +46,6 @@ public class DailyApiController {
         return dayData;
     }
 
-    @PutMapping("/api/v1/members/me/dailies/{yyyymmdd}/meals/order")
-    public void updateOrderInfo(@PathVariable String yyyymmdd, @RequestBody List<DailyService.MealOrderInfo> orderList,
-                                @RequestAttribute Long member_id) {
-        dailyService.reorderMeals(member_id, yyyymmdd, orderList);
-    }
-
     @Data
     static class DailyResult<T> {
         private T data;

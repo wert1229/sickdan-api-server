@@ -3,8 +3,11 @@ package com.kdpark.sickdan.domain;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +25,13 @@ public class Meal {
     @Enumerated(EnumType.STRING)
     private MealCategory category;
 
-    private Long prevMeal;
+    @CreatedDate
+    @Column(nullable = false)
+    private LocalDateTime createdDateTime;
+
+    @LastModifiedDate
+    @Column(nullable = false)
+    private LocalDateTime updatedDateTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumns({
@@ -38,7 +47,6 @@ public class Meal {
         Meal meal = new Meal();
         meal.description = description;
         meal.category = category;
-
         return meal;
     }
 
@@ -51,7 +59,7 @@ public class Meal {
         this.daily = daily;
     }
 
-    public void setPrevMeal(Long prevMeal) {
-        this.prevMeal = prevMeal;
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

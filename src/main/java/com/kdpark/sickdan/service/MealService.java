@@ -59,4 +59,9 @@ public class MealService {
 
         meal.addPhoto(photo);
     }
+
+    public void editMeal(Long mealId, String desc) {
+        Meal meal = mealReposity.findById(mealId);
+        meal.setDescription(desc);
+    }
 }

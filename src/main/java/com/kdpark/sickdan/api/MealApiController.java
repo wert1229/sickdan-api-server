@@ -1,11 +1,10 @@
 package com.kdpark.sickdan.api;
 
 import com.kdpark.sickdan.domain.Daily;
-import com.kdpark.sickdan.domain.Meal;
 import com.kdpark.sickdan.domain.MealCategory;
-import com.kdpark.sickdan.domain.MealPhoto;
 import com.kdpark.sickdan.error.common.ErrorCode;
 import com.kdpark.sickdan.error.exception.FileReadException;
+import com.kdpark.sickdan.repository.MealReposity;
 import com.kdpark.sickdan.service.MealService;
 import com.kdpark.sickdan.util.S3Util;
 import lombok.Data;
@@ -14,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -21,6 +21,7 @@ import java.util.UUID;
 public class MealApiController {
 
     private final MealService mealService;
+    private final MealReposity mealReposity;
     private final S3Util s3Util;
 
     @PostMapping("/api/v1/meals")
@@ -30,6 +31,18 @@ public class MealApiController {
         MealCategory category = request.getCategory();
 
         mealService.record(dailyId, description, category);
+    }
+
+    @PutMapping("/api/v1/meals/{mealId}")
+    public void editMeal(@PathVariable Long mealId, @RequestBody Map<String, String> params) {
+        String desc = params.get("description");
+
+        mealService.editMeal(mealId, desc);
+    }
+
+    @DeleteMapping("/api/v1/meals/{mealId}")
+    public void deleteMeal(@PathVariable Long mealId) {
+        mealReposity.delete(mealId);
     }
 
     @PostMapping("/api/v1/meals/{mealId}/photos")

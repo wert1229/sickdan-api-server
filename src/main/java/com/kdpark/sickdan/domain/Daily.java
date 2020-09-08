@@ -40,21 +40,8 @@ public class Daily {
     }
 
     public void recordMeal(Meal meal) {
-        if (meals.size() == 0) meal.setPrevMeal(0L);
-        else {
-            meal.setPrevMeal(meals.get(meals.size() - 1).getId());
-        }
-
         meals.add(meal);
         meal.setDaily(this);
-    }
-
-    public void reorderMeals(Map<Long, Long> map) {
-        for (Meal meal : meals) {
-            Long afterPrevMealId = map.get(meal.getId());
-            if (afterPrevMealId == null || meal.getPrevMeal().equals(afterPrevMealId)) continue;
-            meal.setPrevMeal(map.get(meal.getId()));
-        }
     }
 
     private void setMember(Member member) {
