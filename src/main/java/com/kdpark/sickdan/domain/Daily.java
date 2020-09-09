@@ -18,9 +18,9 @@ public class Daily {
 
     private String memo;
 
-    private Float bodyWeight;
+    private Double bodyWeight;
 
-    private int walkCount;
+    private Integer walkCount;
 
     @MapsId("memberId")
     @ManyToOne(fetch = FetchType.LAZY)
@@ -31,7 +31,7 @@ public class Daily {
     private List<Meal> meals = new ArrayList<>();
 
     @Builder
-    public Daily(DailyId id, String memo, int walkCount, float bodyWeight, Member member) {
+    public Daily(DailyId id, String memo, Integer walkCount, Double bodyWeight, Member member) {
         this.id = id;
         this.memo = memo;
         this.walkCount = walkCount;
@@ -49,7 +49,7 @@ public class Daily {
         member.getDailies().add(this);
     }
 
-    public void setBodyWeight(Float bodyWeight) {
+    public void setBodyWeight(Double bodyWeight) {
         this.bodyWeight = bodyWeight;
     }
 

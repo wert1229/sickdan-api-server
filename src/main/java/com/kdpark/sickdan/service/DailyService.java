@@ -22,7 +22,7 @@ public class DailyService {
     public void editDaily(Daily.DailyId id, Map<String, Object> params) {
         Daily daily = dailyRepository.findById(id);
 
-        if (params.containsKey("bodyWeight")) daily.setBodyWeight((Float)params.get("bodyWeight"));
+        if (params.containsKey("bodyWeight")) daily.setBodyWeight((Double)params.get("bodyWeight"));
         if (params.containsKey("walkCount")) daily.setWalkCount((Integer)params.get("walkCount"));
     }
 

@@ -48,7 +48,7 @@ public class DailyQueryService {
         private String date;
         private String memo;
         private int walkCount;
-        private float bodyWeight;
+        private double bodyWeight;
 
         public MonthDailyDto(Daily daily) {
             this.date = daily.getId().getDate();
@@ -63,7 +63,7 @@ public class DailyQueryService {
         private String date;
         private String memo;
         private int walkCount;
-        private float bodyWeight;
+        private double bodyWeight;
         private List<MealDto> meals;
 
         public DayDailyDto(Daily daily) {
