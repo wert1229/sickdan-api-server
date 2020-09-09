@@ -31,12 +31,14 @@ public class DailyService {
         if (params.containsKey("walkCount")) daily.setWalkCount((Integer)params.get("walkCount"));
     }
 
-    public void syncWalkCounts(Long memberId, Map<String, Integer> params) {
+    public List<String> syncWalkCounts(Long memberId, Map<String, Integer> params) {
         Map<String, Daily> dailyMap = dailyRepository.findByDates(memberId, new ArrayList<>(params.keySet()))
                 .stream()
                 .collect(Collectors.toMap(
                         daily -> daily.getId().getDate(),
                         daily -> daily));
+
+        List<String> doneDateList = new ArrayList<>();
 
         for (String date : params.keySet()) {
             Daily daily = dailyMap.get(date);
@@ -49,7 +51,11 @@ public class DailyService {
             }
 
             daily.setWalkCount(params.get(date));
+
+            doneDateList.add(date);
         }
+
+        return doneDateList;
     }
 
     @Data
