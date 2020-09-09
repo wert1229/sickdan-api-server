@@ -41,6 +41,7 @@ public class DailyQueryService {
                     .walkCount(0)
                     .member(member)
                     .build();
+            dailyRepository.save(dayData);
         }
 
         return new DayDailyDto(dayData);
