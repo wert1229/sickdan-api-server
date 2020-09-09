@@ -28,6 +28,7 @@ public class DailyQueryService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public DayDailyDto getDayData(Long memberId, String yyyymmdd) {
         Daily.DailyId dailyId = new Daily.DailyId(memberId, yyyymmdd);
         Daily dayData = dailyRepository.findById(dailyId);
