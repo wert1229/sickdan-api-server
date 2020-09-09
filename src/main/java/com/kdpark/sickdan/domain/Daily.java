@@ -49,6 +49,14 @@ public class Daily {
         member.getDailies().add(this);
     }
 
+    public void setBodyWeight(Float bodyWeight) {
+        this.bodyWeight = bodyWeight;
+    }
+
+    public void setWalkCount(int walkCount) {
+        this.walkCount = walkCount;
+    }
+
     @Embeddable
     @Data
     public static class DailyId implements Serializable {

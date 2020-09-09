@@ -1,10 +1,8 @@
 package com.kdpark.sickdan.service.query;
 
-import com.kdpark.sickdan.domain.Daily;
-import com.kdpark.sickdan.domain.Meal;
-import com.kdpark.sickdan.domain.MealCategory;
-import com.kdpark.sickdan.domain.MealPhoto;
+import com.kdpark.sickdan.domain.*;
 import com.kdpark.sickdan.repository.DailyRepository;
+import com.kdpark.sickdan.repository.MemberRepository;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +18,7 @@ import java.util.stream.Collectors;
 public class DailyQueryService {
 
     private final DailyRepository dailyRepository;
+    private final MemberRepository memberRepository;
 
     public List<MonthDailyDto> getMonthData(Long memberId, String yyyymm) {
         List<Daily> monthData = dailyRepository.findOneMonth(memberId, yyyymm);
@@ -34,8 +33,10 @@ public class DailyQueryService {
         Daily dayData = dailyRepository.findById(dailyId);
 
         if (dayData == null) {
+            Member member = memberRepository.findById(dailyId.getMemberId());
             dayData = Daily.builder()
                     .id(dailyId)
+                    .member(member)
                     .build();
         }
 

@@ -1,5 +1,6 @@
 package com.kdpark.sickdan.api;
 
+import com.kdpark.sickdan.domain.Daily;
 import com.kdpark.sickdan.service.DailyService;
 import com.kdpark.sickdan.service.query.DailyQueryService;
 import com.kdpark.sickdan.service.query.DailyQueryService.DayDailyDto;
@@ -10,6 +11,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Log4j2
 @RestController
@@ -32,18 +34,25 @@ public class DailyApiController {
         return dayData;
     }
 
-    @GetMapping("/api/v1/members/{memberId}}/dailies")
+    @GetMapping("/api/v1/members/{memberId}/dailies")
     public List<MonthDailyDto> getMonthData(@PathVariable Long memberId, @RequestParam String yyyymm) {
         List<MonthDailyDto> monthData = dailyQueryService.getMonthData(memberId, yyyymm);
 
         return monthData;
     }
 
-    @GetMapping("/api/v1/members/{memberId}}/dailies/{yyyymmdd}")
+    @GetMapping("/api/v1/members/{memberId}/dailies/{yyyymmdd}")
     public DayDailyDto getDayData(@PathVariable Long memberId, @PathVariable String yyyymmdd) {
         DayDailyDto dayData = dailyQueryService.getDayData(memberId, yyyymmdd);
 
         return dayData;
+    }
+
+    @PutMapping("/api/v1/members/me/dailies/{yyyymmdd}")
+    public void editDayData(@PathVariable String yyyymmdd, @RequestAttribute Long member_id,
+                            @RequestBody Map<String, Object> params) {
+
+        dailyService.editDaily(new Daily.DailyId(member_id, yyyymmdd), params);
     }
 
     @Data
