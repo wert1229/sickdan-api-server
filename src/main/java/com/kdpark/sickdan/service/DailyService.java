@@ -46,8 +46,14 @@ public class DailyService {
             if (daily == null) {
                 Member member = memberRepository.findById(memberId);
                 daily = Daily.builder()
+                        .id(new Daily.DailyId(memberId, date))
                         .member(member)
+                        .memo("")
+                        .bodyWeight(0.0)
+                        .walkCount(0)
                         .build();
+
+                dailyRepository.save(daily);
             }
 
             daily.setWalkCount(params.get(date));
