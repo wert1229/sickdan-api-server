@@ -37,7 +37,7 @@ public class DailyRepository {
                 "select d " +
                         "from Daily d " +
                         "where d.id.memberId = :memberId " +
-                        "and d.id.date in (:yyyymm)", Daily.class)
+                        "and d.id.date in (:dates)", Daily.class)
                 .setParameter("memberId", memberId)
                 .setParameter("dates", dates)
                 .getResultList();

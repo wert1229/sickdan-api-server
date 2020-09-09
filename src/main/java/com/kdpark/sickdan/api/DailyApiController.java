@@ -56,7 +56,7 @@ public class DailyApiController {
     }
 
     @PutMapping("/api/v1/members/me/dailies")
-    public DailyResult<List<String>> editDayData(@RequestAttribute Long member_id, @RequestBody Map<String, Integer> params) {
+    public DailyResult<List<String>> editDayData(@RequestBody Map<String, Integer> params, @RequestAttribute Long member_id) {
         List<String> doneList = dailyService.syncWalkCounts(member_id, params);
 
         return new DailyResult<>(doneList);
