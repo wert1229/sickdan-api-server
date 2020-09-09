@@ -4,6 +4,7 @@ import com.kdpark.sickdan.error.exception.AuthProviderException;
 import com.kdpark.sickdan.error.exception.FileReadException;
 import com.kdpark.sickdan.error.exception.EntityNotFoundException;
 import com.kdpark.sickdan.error.exception.PasswordNotCorrectException;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

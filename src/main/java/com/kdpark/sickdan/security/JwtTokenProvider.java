@@ -1,10 +1,9 @@
 package com.kdpark.sickdan.security;
 
 import com.kdpark.sickdan.domain.Member;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import com.kdpark.sickdan.error.common.ErrorCode;
+import com.kdpark.sickdan.error.exception.EntityNotFoundException;
+import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,7 +21,7 @@ public class JwtTokenProvider {
     @Value("${spring.jwt.secret-key}")
     private String secretKey;
 
-    private final long tokenValidTime = 60 * 60 * 1000L; //30분
+    private final long tokenValidTime = 60 * 60 * 1000L;
 
     @PostConstruct
     protected void init() {
@@ -76,9 +75,13 @@ public class JwtTokenProvider {
     }
 
     public boolean isTokenExpired(String token) {
-        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token)
-                .getBody()
-                .getExpiration()
-                .before(new Date());
+        try {
+            return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token)
+                    .getBody()
+                    .getExpiration()
+                    .before(new Date());
+        } catch (ExpiredJwtException e) {
+            return true;
+        }
     }
 }

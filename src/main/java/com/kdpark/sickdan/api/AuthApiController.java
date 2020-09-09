@@ -84,7 +84,6 @@ public class AuthApiController {
             NaverUserDto info = mapper.treeToValue(response.getBody().get("response"), NaverUserDto.class);
             Member member = memberRepository.findByUserId("naver_" + info.getId());
 
-
             if(member == null) {
                 Long id = memberService.join(
                         Member.builder()
