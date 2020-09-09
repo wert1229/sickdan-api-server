@@ -26,6 +26,9 @@ public class MealService {
             Member member = memberRepository.findById(dailyId.getMemberId());
             daily = Daily.builder()
                     .id(dailyId)
+                    .memo("")
+                    .bodyWeight(0.0)
+                    .walkCount(0)
                     .member(member)
                     .build();
 

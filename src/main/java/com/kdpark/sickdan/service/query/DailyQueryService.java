@@ -36,6 +36,9 @@ public class DailyQueryService {
             Member member = memberRepository.findById(dailyId.getMemberId());
             dayData = Daily.builder()
                     .id(dailyId)
+                    .memo("")
+                    .bodyWeight(0.0)
+                    .walkCount(0)
                     .member(member)
                     .build();
         }
@@ -62,8 +65,8 @@ public class DailyQueryService {
     static public class DayDailyDto {
         private String date;
         private String memo;
-        private int walkCount;
-        private double bodyWeight;
+        private Integer walkCount;
+        private Double bodyWeight;
         private List<MealDto> meals;
 
         public DayDailyDto(Daily daily) {
