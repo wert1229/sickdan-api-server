@@ -31,4 +31,15 @@ public class DailyRepository {
                 .setParameter("yyyymm", yyyymm + "%")
                 .getResultList();
     }
+
+    public List<Daily> findByDates(Long memberId, List<String> dates) {
+        return em.createQuery(
+                "select d " +
+                        "from Daily d " +
+                        "where d.id.memberId = :memberId " +
+                        "and d.id.date in (:yyyymm)", Daily.class)
+                .setParameter("memberId", memberId)
+                .setParameter("dates", dates)
+                .getResultList();
+    }
 }
