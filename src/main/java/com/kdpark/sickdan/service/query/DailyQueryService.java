@@ -96,12 +96,16 @@ public class DailyQueryService {
 
     @Data
     static class MealPhotoDto {
+        private Long id;
         private String fileOriginName;
         private String fileName;
+        private String fileUrl;
 
         public MealPhotoDto(MealPhoto photo) {
+            this.id = photo.getId();
             this.fileOriginName = photo.getFileOriginName();
             this.fileName = photo.getFileName();
+            this.fileUrl = photo.getFileUrl();
         }
     }
 }
