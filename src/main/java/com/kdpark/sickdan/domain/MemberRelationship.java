@@ -41,6 +41,10 @@ public class MemberRelationship {
         this.status = status;
     }
 
+    public void setFriend() {
+        this.status = RelationshipStatus.FRIEND;
+    }
+
     @Embeddable
     @Data
     public static class MemberRelationshipId implements Serializable {

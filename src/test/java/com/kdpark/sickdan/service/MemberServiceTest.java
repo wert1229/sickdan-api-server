@@ -5,6 +5,7 @@ import com.kdpark.sickdan.domain.MemberRelationship;
 import com.kdpark.sickdan.domain.RelationshipStatus;
 import com.kdpark.sickdan.error.exception.EntityNotFoundException;
 import com.kdpark.sickdan.repository.MemberRepository;
+import com.kdpark.sickdan.util.CryptUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -90,7 +91,7 @@ class MemberServiceTest {
 
         //when
         MemberService.FriendSearchResult result =
-                memberService.searchByEmailWithRelationInfo(emailSearchingFor, requestingMemberId);
+                memberService.searchByFilter("email", emailSearchingFor, requestingMemberId);
 
         //then
         assertEquals(emailSearchingFor, result.getEmail());
@@ -125,7 +126,7 @@ class MemberServiceTest {
 
         //when
         MemberService.FriendSearchResult result =
-                memberService.searchByEmailWithRelationInfo(emailSearchingFor, requestingMemberId);
+                memberService.searchByFilter("email", emailSearchingFor, requestingMemberId);
 
         //then
         assertEquals(emailSearchingFor, result.getEmail());
@@ -140,6 +141,19 @@ class MemberServiceTest {
 
         //then
         assertThrows(EntityNotFoundException.class, () ->
-                memberService.searchByEmailWithRelationInfo("park@naver.com", 1L));
+                memberService.searchByFilter("email","park@naver.com", 1L));
+    }
+
+    @Test
+    public void 암호화테스트() throws Exception {
+        //given
+        String text = "2003";
+
+        //when
+        String encrypted = CryptUtil.encrypt(text);
+        String decrypted = CryptUtil.decrypt(encrypted);
+
+        //then
+        assertEquals(text, decrypted);
     }
 }

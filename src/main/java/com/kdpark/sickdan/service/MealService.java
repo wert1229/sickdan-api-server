@@ -24,14 +24,7 @@ public class MealService {
 
         if (daily == null) {
             Member member = memberRepository.findById(dailyId.getMemberId());
-            daily = Daily.builder()
-                    .id(dailyId)
-                    .memo("")
-                    .bodyWeight(0.0)
-                    .walkCount(0)
-                    .member(member)
-                    .build();
-
+            daily = Daily.getDefault(member, dailyId.getDate());
             dailyRepository.save(daily);
         }
 

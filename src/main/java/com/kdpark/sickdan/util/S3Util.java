@@ -18,6 +18,8 @@ import java.io.IOException;
 @Service
 @NoArgsConstructor
 public class S3Util {
+    public static final String CLOUDFRONT_DOMAIN = "http://d3uvne3d65ux1z.cloudfront.net/";
+
     private AmazonS3 s3Client;
 
     @Value("${cloud.aws.credentials.accessKey}")
@@ -46,7 +48,8 @@ public class S3Util {
         s3Client.putObject(new PutObjectRequest(bucket, fileName, file.getInputStream(), null)
                 .withCannedAcl(CannedAccessControlList.PublicRead));
 
-        return s3Client.getUrl(bucket, fileName).toString();
+//        return s3Client.getUrl(bucket, fileName).toString();
+        return CLOUDFRONT_DOMAIN + fileName;
     }
 
 }

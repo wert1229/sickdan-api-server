@@ -35,13 +35,7 @@ public class DailyQueryService {
 
         if (dayData == null) {
             Member member = memberRepository.findById(dailyId.getMemberId());
-            dayData = Daily.builder()
-                    .id(dailyId)
-                    .memo("")
-                    .bodyWeight(0.0)
-                    .walkCount(0)
-                    .member(member)
-                    .build();
+            dayData = Daily.getDefault(member, yyyymmdd);
             dailyRepository.save(dayData);
         }
 

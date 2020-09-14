@@ -49,6 +49,16 @@ public class Daily {
         member.getDailies().add(this);
     }
 
+    public static Daily getDefault(Member member, String date) {
+        return Daily.builder()
+                .id(new DailyId(member.getId(), date))
+                .memo("")
+                .bodyWeight(0.0)
+                .walkCount(0)
+                .member(member)
+                .build();
+    }
+
     public void setBodyWeight(Double bodyWeight) {
         this.bodyWeight = bodyWeight;
     }

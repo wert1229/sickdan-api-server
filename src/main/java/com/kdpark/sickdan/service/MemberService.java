@@ -6,6 +6,7 @@ import com.kdpark.sickdan.domain.RelationshipStatus;
 import com.kdpark.sickdan.error.common.ErrorCode;
 import com.kdpark.sickdan.error.exception.EntityNotFoundException;
 import com.kdpark.sickdan.repository.MemberRepository;
+import com.kdpark.sickdan.util.CryptUtil;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,8 +32,11 @@ public class MemberService {
 
     public MemberInfoDto findById(Long memberId) {
         Member member = memberRepository.findById(memberId);
-
         return new MemberInfoDto(member);
+    }
+
+    public void getRelationships(Long memberId) {
+        List<MemberRelationship> relationships = memberRepository.getRelationshipsByMemberId(memberId);
     }
 
     public Member findByUserId(String userId) {
@@ -42,12 +47,32 @@ public class MemberService {
         return memberRepository.findByEmail(email);
     }
 
-    public FriendSearchResult searchByEmailWithRelationInfo(String email, Long member_id) {
-        Member findMember = memberRepository.findByEmail(email);
+    public FriendSearchResult searchByFilter(String by, String value, Long member_id) {
+        Member findMember;
+
+        if (by.equals("email")) {
+            findMember = memberRepository.findByEmail(value);
+        } else if (by.equals("code")) {
+            String id = CryptUtil.decrypt(value);
+            findMember = memberRepository.findById(Long.parseLong(id));
+        } else {
+            // TODO
+            throw new EntityNotFoundException("검색결과없음", ErrorCode.ENTITY_NOT_FOUND);
+        }
 
         if (findMember == null) throw new EntityNotFoundException("검색결과없음", ErrorCode.ENTITY_NOT_FOUND);
 
         Member member = memberRepository.findById(member_id);
+
+        if (findMember.getId().equals(member_id)) {
+            return FriendSearchResult.builder()
+                    .id(member.getId())
+                    .email(member.getEmail())
+                    .displayName(member.getDisplayName())
+                    .status(RelationshipStatus.SELF)
+                    .build();
+        }
+
         Map<Member, MemberRelationship> map = member.getRelationships().stream()
                 .collect(Collectors.toMap(MemberRelationship::getRelatedMember, relationship -> relationship));
 
@@ -65,23 +90,14 @@ public class MemberService {
         Member relatingMember = memberRepository.findById(relatingMemberId);
         Member relatedMember = memberRepository.findById(relatedMemberId);
 
-        relatingMember.getRelationships().add(
-                MemberRelationship.builder()
-                        .id(new MemberRelationship.MemberRelationshipId(relatingMember.getId(), relatedMember.getId()))
-                        .relatingMember(relatingMember)
-                        .relatedMember(relatedMember)
-                        .status(RelationshipStatus.REQUESTING)
-                        .build()
-        );
+        relatingMember.requestFriend(relatedMember);
+    }
 
-        relatedMember.getRelationships().add(
-                MemberRelationship.builder()
-                        .id(new MemberRelationship.MemberRelationshipId(relatedMember.getId(), relatingMember.getId()))
-                        .relatingMember(relatedMember)
-                        .relatedMember(relatingMember)
-                        .status(RelationshipStatus.REQUESTED)
-                        .build()
-        );
+    public void acceptFriend(Long relatingMemberId, Long relatedMemberId) {
+        Member relatingMember = memberRepository.findById(relatingMemberId);
+        Member relatedMember = memberRepository.findById(relatedMemberId);
+
+        relatingMember.acceptFriend(relatedMember);
     }
 
     @Data

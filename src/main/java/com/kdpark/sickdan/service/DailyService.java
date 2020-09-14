@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,14 +44,7 @@ public class DailyService {
 
             if (daily == null) {
                 Member member = memberRepository.findById(memberId);
-                daily = Daily.builder()
-                        .id(new Daily.DailyId(memberId, date))
-                        .member(member)
-                        .memo("")
-                        .bodyWeight(0.0)
-                        .walkCount(0)
-                        .build();
-
+                daily = Daily.getDefault(member, date);
                 dailyRepository.save(daily);
             }
 

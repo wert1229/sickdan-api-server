@@ -12,6 +12,9 @@ spring:
     open-in-view: false
   servlet:
     multipart:
+  redis:
+    port: 6379
+    host: 222.111.195.42
 
 cloud:
   aws:

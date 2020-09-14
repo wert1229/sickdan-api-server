@@ -47,4 +47,10 @@ public class MemberRepository {
     public void saveRelation(MemberRelationship relationship){
         em.persist(relationship);
     }
+
+    public List<MemberRelationship> getRelationshipsByMemberId(Long memberId) {
+        return em.createNamedQuery("Member.relationships", MemberRelationship.class)
+                .setParameter("memberId", memberId)
+                .getResultList();
+    }
 }

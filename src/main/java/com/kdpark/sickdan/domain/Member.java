@@ -1,8 +1,6 @@
 package com.kdpark.sickdan.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,11 +10,23 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Entity
 @Getter
 //@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NamedQuery(name="Member.relationships", query=
+        "select m " +
+        "from Member m " +
+        "where m in (" +
+            "select mr.relatingMember " +
+            "from MemberRelationship mr " +
+            "where mr.relatedMember.id = :memberId) " +
+        "or m in (" +
+            "select mr.relatedMember " +
+            "from MemberRelationship mr " +
+            "where mr.relatingMember.id = :memberId)")
 public class Member implements UserDetails {
 
     @Id @GeneratedValue
@@ -56,6 +66,38 @@ public class Member implements UserDetails {
         this.displayName = displayName;
         this.provider = provider;
         this.roles = roles;
+    }
+
+    public void requestFriend(Member requested) {
+        relationships.add(
+                MemberRelationship.builder()
+                        .id(new MemberRelationship.MemberRelationshipId(this.getId(), requested.getId()))
+                        .relatingMember(this)
+                        .relatedMember(requested)
+                        .status(RelationshipStatus.REQUESTING)
+                        .build()
+        );
+
+        requested.getRelationships().add(
+                MemberRelationship.builder()
+                        .id(new MemberRelationship.MemberRelationshipId(requested.getId(), this.getId()))
+                        .relatingMember(requested)
+                        .relatedMember(this)
+                        .status(RelationshipStatus.REQUESTED)
+                        .build()
+        );
+    }
+
+    public void acceptFriend(Member requesting) {
+        relationships.forEach(relationship -> {
+            if (relationship.getId().getRelatedId().equals(requesting.getId()))
+                relationship.setFriend();
+        });
+
+        requesting.getRelationships().forEach(relationship -> {
+            if (relationship.getId().getRelatedId().equals(this.getId()))
+                relationship.setFriend();
+        });
     }
 
     //==스프링 시큐리티 관련==//
