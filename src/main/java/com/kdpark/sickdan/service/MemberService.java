@@ -54,6 +54,7 @@ public class MemberService {
             findMember = memberRepository.findByEmail(value);
         } else if (by.equals("code")) {
             String id = CryptUtil.decrypt(value);
+            if ("".equals(id)) return null;
             findMember = memberRepository.findById(Long.parseLong(id));
         } else {
             // TODO

@@ -22,6 +22,7 @@ public class JwtTokenProvider {
     private String secretKey;
 
     private static final long ACCESS_TOKEN_VALID_TIME = 60 * 60 * 1000L;
+//    private static final long ACCESS_TOKEN_VALID_TIME = 10 * 1000L;
     private static final long REFRESH_TOKEN_VALID_TIME = 7 * 24 * 60 * 60 * 1000L;
 
     public static final String TYPE_ACCESS = "access";

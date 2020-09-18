@@ -1,6 +1,8 @@
 package com.kdpark.sickdan.api;
 
 import com.kdpark.sickdan.domain.Member;
+import com.kdpark.sickdan.error.common.ErrorCode;
+import com.kdpark.sickdan.error.exception.EntityNotFoundException;
 import com.kdpark.sickdan.repository.MemberRepository;
 import com.kdpark.sickdan.service.MemberService;
 import com.kdpark.sickdan.service.MemberService.MemberInfoDto;
@@ -33,8 +35,12 @@ public class MemberApiController {
     public MemberService.FriendSearchResult searchFriendByEmail(@RequestParam String by,
                                                                 @RequestParam String value,
                                                                 @RequestAttribute Long member_id) {
+        MemberService.FriendSearchResult friendSearchResult = memberService.searchByFilter(by, value, member_id);
 
-        return memberService.searchByFilter(by, value, member_id);
+        if (friendSearchResult == null)
+            throw new EntityNotFoundException("멤버를 찾을 수 없음", ErrorCode.ENTITY_NOT_FOUND);
+
+        return friendSearchResult;
     }
 
     @PostMapping("/api/v1/members/me/relationships")

@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,9 +40,43 @@ public class DailyQueryService {
             dailyRepository.save(dayData);
         }
 
-        return new DayDailyDto(dayData);
+        DailyRepository.DailyCountInfo commentAndLikeCount = dailyRepository.getCommentAndLikeCount(memberId, yyyymmdd);
+
+        return new DayDailyDto(dayData, commentAndLikeCount);
     }
 
+    public List<DailyCommentDto> getDayComments(Long memberId, String yyyymmdd) {
+        List<Comment> comments = dailyRepository.getComments(memberId, yyyymmdd);
+
+        return comments.stream()
+                .map(DailyCommentDto::new)
+                .collect(Collectors.toList());
+    }
+
+    public Likes getLike(Long memberId, String yyyymmdd, Long authId) {
+        return dailyRepository.getLikeById(new Likes.LikeId(new Daily.DailyId(memberId, yyyymmdd), authId));
+    }
+
+    @Data
+    static public class DailyCommentDto {
+        private Long id;
+        private String displayName;
+        private String description;
+        private String createdDateTime;
+        private Long parentCommentId;
+        private List<DailyCommentDto> replies;
+
+        public DailyCommentDto(Comment comment) {
+            this.id = comment.getId();
+            this.displayName = comment.getWriter().getDisplayName();
+            this.description = comment.getDescription();
+            this.createdDateTime = comment.getCreatedDateTime().toString();
+            this.parentCommentId = comment.getParent() != null ?comment.getParent().getId() : null;
+            this.replies = comment.getReplies().stream()
+                    .map(DailyCommentDto::new)
+                    .collect(Collectors.toList());
+        }
+    }
     @Data
     static public class MonthDailyDto {
         private String date;
@@ -64,12 +99,16 @@ public class DailyQueryService {
         private Integer walkCount;
         private Double bodyWeight;
         private List<MealDto> meals;
+        private Integer commentCount;
+        private Integer likeCount;
 
-        public DayDailyDto(Daily daily) {
+        public DayDailyDto(Daily daily, DailyRepository.DailyCountInfo countInfo) {
             this.date = daily.getId().getDate();
             this.memo = daily.getMemo();
             this.walkCount = daily.getWalkCount();
             this.bodyWeight = daily.getBodyWeight();
+            this.commentCount = countInfo.getCommentCount();
+            this.likeCount = countInfo.getLikeCount();
             this.meals = daily.getMeals().stream()
                     .sorted(Comparator.comparing(Meal::getCreatedDateTime))
                     .map(MealDto::new)

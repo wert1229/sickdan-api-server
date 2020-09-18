@@ -1,6 +1,10 @@
 package com.kdpark.sickdan.repository;
 
+import com.kdpark.sickdan.domain.Comment;
 import com.kdpark.sickdan.domain.Daily;
+import com.kdpark.sickdan.domain.Likes;
+import lombok.Builder;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -41,5 +45,58 @@ public class DailyRepository {
                 .setParameter("memberId", memberId)
                 .setParameter("dates", dates)
                 .getResultList();
+    }
+
+    public DailyCountInfo getCommentAndLikeCount(Long memberId, String yyyymmdd) {
+        return (DailyCountInfo) em.createNativeQuery(
+                "select " +
+                        "    (select count(comment_id) " +
+                        "     from   comment c " +
+                        "     where  c.member_id = d.member_id " +
+                        "     and    c.date = d.date) as commentCount, " +
+                        "    (select count(*) " +
+                        "     from   likes l " +
+                        "     where  l.member_id = d.member_id " +
+                        "     and    l.date = d.date) as likeCount " +
+                        "from  daily d " +
+                        "where member_id = :member_id " +
+                        "and   date = :date", "CommentAndLikeCountMapping")
+                .setParameter("member_id", memberId)
+                .setParameter("date", yyyymmdd)
+                .getSingleResult();
+    }
+
+    public List<Comment> getComments(Long memberId, String yyyymmdd) {
+        return em.createQuery(
+                "select c " +
+                        "from Comment c " +
+                        "join fetch c.writer " +
+                        "left join fetch c.parent " +
+                        "where c.daily.id.memberId = :member_id " +
+                        "and   c.daily.id.date = :date " +
+                        "and   c.parent.id is null", Comment.class)
+                .setParameter("member_id", memberId)
+                .setParameter("date", yyyymmdd)
+                .getResultList();
+    }
+
+    public Comment getCommentById(Long id) {
+        return em.find(Comment.class, id);
+    }
+
+    public Likes getLikeById(Likes.LikeId id) {
+        return em.find(Likes.class, id);
+    }
+
+    @Data
+    public static class DailyCountInfo {
+        private int commentCount;
+        private int likeCount;
+
+        @Builder
+        public DailyCountInfo(int commentCount, int likeCount) {
+            this.commentCount = commentCount;
+            this.likeCount = likeCount;
+        }
     }
 }

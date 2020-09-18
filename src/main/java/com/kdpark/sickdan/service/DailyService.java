@@ -1,8 +1,7 @@
 package com.kdpark.sickdan.service;
 
-import com.kdpark.sickdan.domain.Daily;
-import com.kdpark.sickdan.domain.MealCategory;
-import com.kdpark.sickdan.domain.Member;
+import com.kdpark.sickdan.api.DailyApiController;
+import com.kdpark.sickdan.domain.*;
 import com.kdpark.sickdan.repository.DailyRepository;
 import com.kdpark.sickdan.repository.MemberRepository;
 import lombok.Data;
@@ -54,6 +53,37 @@ public class DailyService {
         }
 
         return doneDateList;
+    }
+
+    public void writeComment(Daily.DailyId dailyId, String description, Long parentId, Long member_id) {
+        Daily daily = dailyRepository.findById(dailyId);
+        Member writer = memberRepository.findById(member_id);
+        Comment parent = null;
+
+        if (parentId != null)
+            parent = dailyRepository.getCommentById(parentId);
+
+        Comment comment = Comment.builder()
+                .description(description)
+                .writer(writer)
+                .parent(parent)
+                .build();
+
+        daily.writeComment(comment);
+    }
+
+    public void doLike(Daily.DailyId dailyId, Long member_id) {
+        Member liker = memberRepository.findById(member_id);
+        Daily daily = dailyRepository.findById(dailyId);
+
+        daily.doLike(liker);
+    }
+
+    public void undoLike(Daily.DailyId dailyId, Long member_id) {
+        Member liker = memberRepository.findById(member_id);
+        Daily daily = dailyRepository.findById(dailyId);
+
+        daily.undoLike(liker);
     }
 
     @Data

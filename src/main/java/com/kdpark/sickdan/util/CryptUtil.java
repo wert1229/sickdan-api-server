@@ -27,6 +27,8 @@ public class CryptUtil {
     }
 
     public static String decrypt(String text) {
+        if (text.length() % 16 != 0) return "";
+
         SecretKeySpec aes = new SecretKeySpec(KEY.getBytes(), "AES");
 
         try {

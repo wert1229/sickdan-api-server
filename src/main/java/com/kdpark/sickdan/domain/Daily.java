@@ -1,16 +1,29 @@
 package com.kdpark.sickdan.domain;
 
+import com.kdpark.sickdan.repository.DailyRepository;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EntityListeners(AuditingEntityListener.class)
+@SqlResultSetMapping(
+        name="CommentAndLikeCountMapping",
+        classes = @ConstructorResult(
+                targetClass = DailyRepository.DailyCountInfo.class,
+                columns = {
+                        @ColumnResult(name="commentCount", type = Integer.class),
+                        @ColumnResult(name="likeCount", type = Integer.class)
+                })
+)
 public class Daily {
 
     @EmbeddedId
@@ -22,6 +35,12 @@ public class Daily {
 
     private Integer walkCount;
 
+    @CreatedDate
+    private LocalDateTime createdDateTime;
+
+    @LastModifiedDate
+    private LocalDateTime updatedDateTime;
+
     @MapsId("memberId")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
@@ -29,6 +48,12 @@ public class Daily {
 
     @OneToMany(mappedBy = "daily", cascade = CascadeType.ALL)
     private List<Meal> meals = new ArrayList<>();
+
+    @OneToMany(mappedBy = "daily", cascade = CascadeType.ALL)
+    private List<Comment> comments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "daily", cascade = CascadeType.ALL)
+    private Set<Likes> likes = new HashSet<>();
 
     @Builder
     public Daily(DailyId id, String memo, Integer walkCount, Double bodyWeight, Member member) {
@@ -65,6 +90,28 @@ public class Daily {
 
     public void setWalkCount(int walkCount) {
         this.walkCount = walkCount;
+    }
+
+    public void writeComment(Comment comment) {
+        this.comments.add(comment);
+        comment.setDaily(this);
+    }
+
+    public void doLike(Member member) {
+        Likes like = Likes.builder()
+                .id(new Likes.LikeId(id, member.getId()))
+                .daily(this)
+                .member(member)
+                .build();
+        this.getLikes().add(like);
+    }
+
+    public void undoLike(Member member) {
+        Likes like = Likes.builder()
+                .daily(this)
+                .member(member)
+                .build();
+        this.getLikes().remove(like);
     }
 
     @Embeddable
