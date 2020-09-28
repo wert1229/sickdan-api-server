@@ -5,15 +5,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kdpark.sickdan.domain.Member;
 import com.kdpark.sickdan.domain.Provider;
+import com.kdpark.sickdan.dto.SignDto;
 import com.kdpark.sickdan.error.common.ErrorCode;
-import com.kdpark.sickdan.error.exception.AuthProviderException;
-import com.kdpark.sickdan.error.exception.EntityNotFoundException;
-import com.kdpark.sickdan.error.exception.PasswordNotCorrectException;
+import com.kdpark.sickdan.error.exception.*;
 import com.kdpark.sickdan.repository.MemberRepository;
 import com.kdpark.sickdan.security.JwtTokenProvider;
 import com.kdpark.sickdan.service.MemberService;
-import io.jsonwebtoken.ExpiredJwtException;
-import lombok.Data;
+import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -24,8 +22,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+import javax.validation.Valid;
 import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -46,7 +44,11 @@ public class AuthApiController {
     private final MemberRepository memberRepository;
 
     @PostMapping("/v1/signup")
-    public void signUpV1(@RequestBody SignUpRequest request) {
+    public void signUpV1(@Valid @RequestBody SignDto.SignUpRequest request) {
+        Member member = memberRepository.findByUserId(request.getUserId());
+
+        if (member != null) throw new EntityDuplicatedException("이미 존재하는 회원 아이디", ErrorCode.MEMBER_DUPLICATED);
+
         memberService.join(
             Member.builder()
                     .userId(request.getUserId())
@@ -60,8 +62,8 @@ public class AuthApiController {
     }
 
     @PostMapping("/v1/signin")
-    public ResponseEntity<Void> signInV1(@RequestBody SignInRequest request) {
-        Member member = memberService.findByUserId(request.getUserId());
+    public ResponseEntity<Void> signInV1(@Valid @RequestBody SignDto.SignInRequest request) {
+        Member member = memberRepository.findByUserId(request.getUserId());
 
         if (member == null || member.getProvider() != Provider.LOCAL)
             throw new EntityNotFoundException("멤버를 찾을 수 없음", ErrorCode.ENTITY_NOT_FOUND);
@@ -78,7 +80,7 @@ public class AuthApiController {
     }
 
     @PostMapping("/v1/oauth/naver")
-    public ResponseEntity<Void> oauthNaverV1(@RequestBody OAuthTokenInfoDto tokenInfo) {
+    public ResponseEntity<Void> oAuthNaverV1(@Valid @RequestBody SignDto.OAuthTokenInfo tokenInfo) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + tokenInfo.getAccessToken());
         HttpEntity<String> entity = new HttpEntity<>(headers);
@@ -86,12 +88,12 @@ public class AuthApiController {
         ResponseEntity<JsonNode> response = restTemplate.exchange(NAVER_REQUEST_URL, HttpMethod.GET, entity, JsonNode.class);
 
         if (response.getStatusCode().isError() || response.getBody() == null)
-            throw new AuthProviderException("naver failed", ErrorCode.EXTERNAL_IO_FAILED);
+            throw new OAuthProviderException("naver failed", ErrorCode.EXTERNAL_IO_FAILED);
 
         ObjectMapper mapper = new ObjectMapper();
 
         try {
-            NaverUserDto info = mapper.treeToValue(response.getBody().get("response"), NaverUserDto.class);
+            SignDto.NaverUser info = mapper.treeToValue(response.getBody().get("response"), SignDto.NaverUser.class);
             Member member = memberRepository.findByUserId("naver_" + info.getId());
 
             if(member == null) {
@@ -100,7 +102,7 @@ public class AuthApiController {
                                 .userId("naver_" + info.getId())
                                 .email(info.getEmail())
                                 .password(passwordEncoder.encode("{noop}" + UUID.randomUUID()))
-                                .displayName(info.name)
+                                .displayName(info.getName())
                                 .provider(Provider.NAVER)
                                 .roles(Collections.singletonList("ROLE_USER"))
                                 .build()
@@ -118,13 +120,12 @@ public class AuthApiController {
                     .build();
 
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().build();
+            throw new OAuthProviderException("naver json failed", ErrorCode.EXTERNAL_IO_FAILED);
         }
     }
 
     @PostMapping("/v1/oauth/kakao")
-    public ResponseEntity<Void> oauthKakaoV1(@RequestBody OAuthTokenInfoDto tokenInfo) {
+    public ResponseEntity<Void> oauthKakaoV1(@Valid @RequestBody SignDto.OAuthTokenInfo tokenInfo) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + tokenInfo.getAccessToken());
         HttpEntity<String> entity = new HttpEntity<>(headers);
@@ -132,10 +133,10 @@ public class AuthApiController {
         ResponseEntity<JsonNode> response = restTemplate.exchange(KAKAO_REQUEST_URL, HttpMethod.GET, entity, JsonNode.class);
 
         if (response.getStatusCode().isError() || response.getBody() == null)
-            throw new AuthProviderException("kakao failed", ErrorCode.EXTERNAL_IO_FAILED);
+            throw new OAuthProviderException("kakao failed", ErrorCode.EXTERNAL_IO_FAILED);
 
         JsonNode data = response.getBody();
-        KakaoUserDto info = new KakaoUserDto();
+        SignDto.KakaoUser info = new SignDto.KakaoUser();
 
         try {
             info.setId(data.get("id").asText(""));
@@ -143,7 +144,7 @@ public class AuthApiController {
             info.setNickname(data.get("properties").get("nickname").asText(""));
         } catch (NullPointerException e) {
             e.printStackTrace();
-            throw new AuthProviderException("kakao failed", ErrorCode.EXTERNAL_IO_FAILED);
+            throw new OAuthProviderException("kakao failed", ErrorCode.EXTERNAL_IO_FAILED);
         }
 
         Member member = memberRepository.findByUserId("kakao_" + info.getId());
@@ -174,13 +175,12 @@ public class AuthApiController {
 
 
     @PostMapping("/v1/token/refresh")
-    public ResponseEntity<Void> signInV1(@RequestBody Map<String, Object> param) {
-        String refreshToken = (String) param.getOrDefault("refreshToken", "");
-        if (refreshToken.equals("")) return ResponseEntity.badRequest().build();
+    public ResponseEntity<Void> signInV1(@Valid @RequestBody SignDto.RefreshRequest request) {
+        String refreshToken = request.getRefreshToken();
 
-        Set<String> blackList = redisTemplate.opsForSet().members(REDIS_TOKEN_MEMBER);
-        boolean isBlackListed = blackList != null && blackList.contains(refreshToken);
-        if (isBlackListed) return ResponseEntity.badRequest().build();
+        Set<String> blacklist = redisTemplate.opsForSet().members(REDIS_TOKEN_MEMBER);
+        boolean isBlackListed = blacklist != null && blacklist.contains(refreshToken);
+        if (isBlackListed) throw new BanishedTokenException("블랙리스트 된 리프레쉬토큰", ErrorCode.BANISHED_REFRESH_TOKEN);
 
         try {
             Long memberId = jwtTokenProvider.getUserPk(refreshToken);
@@ -191,46 +191,8 @@ public class AuthApiController {
                     .header(JwtTokenProvider.ACCESS_TOKEN_HEADER, accessToken)
                     .build();
 
-        } catch (ExpiredJwtException e) {
+        } catch (JwtException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-    }
-
-
-    @Data
-    static class SignUpRequest {
-        private String userId;
-        private String password;
-        private String email;
-        private String displayName;
-    }
-
-    @Data
-    static class SignInRequest {
-        private String userId;
-        private String password;
-    }
-
-    @Data
-    static class OAuthTokenInfoDto {
-        private String accessToken;
-        private String refreshToken;
-        private long expiresAt;
-        private String tokenType;
-    }
-
-    @Data
-    static class NaverUserDto {
-        private String id;
-        private String email;
-        private String nickname;
-        private String name;
-    }
-
-    @Data
-    static class KakaoUserDto {
-        private String id;
-        private String email;
-        private String nickname;
     }
 }

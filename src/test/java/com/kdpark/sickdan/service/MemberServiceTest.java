@@ -32,7 +32,7 @@ class MemberServiceTest {
     public void setup() {}
 
     @Test
-    public void 회원가입() throws Exception {
+    public void 회원가입_로컬_정상처리() throws Exception {
         //given
         Member member = Member.builder()
                 .email("wert1229@naver.com")

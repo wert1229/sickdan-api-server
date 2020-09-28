@@ -3,6 +3,7 @@ package com.kdpark.sickdan.error.common;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 
 import java.util.ArrayList;
@@ -20,21 +21,21 @@ public class ErrorResponse {
 
     private ErrorResponse(final ErrorCode code, final List<FieldError> errors) {
         this.message = code.getMessage();
-        this.status = code.getStatus();
+        this.status = code.getStatus().value();
         this.errors = errors;
         this.code = code.getCode();
     }
 
     private ErrorResponse(final ErrorCode code) {
         this.message = code.getMessage();
-        this.status = code.getStatus();
+        this.status = code.getStatus().value();
         this.code = code.getCode();
         this.errors = new ArrayList<>();
     }
 
     private ErrorResponse(final ErrorCode code, String message) {
         this.message = message;
-        this.status = code.getStatus();
+        this.status = code.getStatus().value();
         this.code = code.getCode();
         this.errors = new ArrayList<>();
     }
