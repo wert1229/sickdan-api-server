@@ -10,7 +10,9 @@ import com.kdpark.sickdan.repository.MemberRepository;
 import com.kdpark.sickdan.security.JwtTokenProvider;
 import com.kdpark.sickdan.service.MemberService;
 import io.jsonwebtoken.ExpiredJwtException;
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -35,6 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(AuthApiController.class)
 @AutoConfigureMockMvc
+@TestMethodOrder(MethodOrderer.Alphanumeric.class)
 class AuthApiControllerTest {
     @Autowired
     private MockMvc mvc;

@@ -46,7 +46,7 @@ class DailyServiceTest {
         params.put("bodyWeight", 70.0f);
 
         //when
-        dailyService.editDaily(new Daily.DailyId(1L, "20200831"), params);
+//        dailyService.editDaily(new Daily.DailyId(1L, "20200831"), params);
 
         //then
 

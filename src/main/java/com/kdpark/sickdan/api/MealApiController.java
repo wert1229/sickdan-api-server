@@ -2,6 +2,7 @@ package com.kdpark.sickdan.api;
 
 import com.kdpark.sickdan.domain.Daily;
 import com.kdpark.sickdan.domain.MealCategory;
+import com.kdpark.sickdan.dto.MealDto;
 import com.kdpark.sickdan.error.common.ErrorCode;
 import com.kdpark.sickdan.error.exception.FileReadException;
 import com.kdpark.sickdan.repository.MealReposity;
@@ -12,7 +13,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.io.IOException;
+import java.security.Principal;
 import java.util.Map;
 import java.util.UUID;
 
@@ -21,12 +25,14 @@ import java.util.UUID;
 public class MealApiController {
 
     private final MealService mealService;
-    private final MealReposity mealReposity;
     private final S3Util s3Util;
 
     @PostMapping("/api/v1/meals")
-    public void addMeal(@RequestBody MealAddRequest request, @RequestAttribute Long member_id) {
-        Daily.DailyId dailyId = new Daily.DailyId(member_id, request.date);
+    public void addMeal(@RequestBody @Valid MealDto.MealAddRequest request,
+                        Principal principal) {
+        String memberId = principal.getName();
+
+        Daily.DailyId dailyId = new Daily.DailyId(Long.parseLong(memberId), request.getDate());
         String description = request.getDescription();
         MealCategory category = request.getCategory();
 
@@ -34,20 +40,20 @@ public class MealApiController {
     }
 
     @PutMapping("/api/v1/meals/{mealId}")
-    public void editMeal(@PathVariable Long mealId, @RequestBody Map<String, String> params) {
-        String desc = params.get("description");
-
+    public void editMeal(@PathVariable @Min(1) Long mealId,
+                         @RequestBody @Valid MealDto.MealEditRequest request) {
+        String desc = request.getDescription();
         mealService.editMeal(mealId, desc);
     }
 
     @DeleteMapping("/api/v1/meals/{mealId}")
-    public void deleteMeal(@PathVariable Long mealId) {
+    public void deleteMeal(@PathVariable @Min(1) Long mealId) {
         mealService.delete(mealId);
-
     }
 
     @PostMapping("/api/v1/meals/{mealId}/photos")
-    public void uploadMealPhoto(@PathVariable Long mealId, @RequestPart MultipartFile file) {
+    public void uploadMealPhoto(@PathVariable @Min(1) Long mealId,
+                                @RequestPart MultipartFile file) {
         try {
             String originFileName = file.getOriginalFilename();
             String ext = originFileName.substring(originFileName.lastIndexOf(".") + 1);
@@ -59,12 +65,5 @@ public class MealApiController {
         } catch (IOException e) {
             throw new FileReadException("파일 읽기 실패", ErrorCode.INTERNAL_IO_FAILED);
         }
-    }
-
-    @Data
-    static class MealAddRequest {
-        private String date;
-        private String description;
-        private MealCategory category;
     }
 }

@@ -10,6 +10,9 @@ import com.kdpark.sickdan.util.CryptUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import java.security.Principal;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,21 +24,23 @@ public class MemberApiController {
     private final MemberService memberService;
     private final MemberRepository memberRepository;
 
-    @GetMapping("/api/v1/members/{id}")
-    public MemberInfoDto getMemberV1(@PathVariable Long id) {
-        return memberService.findById(id);
+    @GetMapping("/api/v1/members/{memberId}")
+    public MemberInfoDto getMemberV1(@PathVariable @Min(1) Long memberId) {
+        return memberService.findById(memberId);
     }
 
     @GetMapping("/api/v1/members/me")
-    public MemberInfoDto getAuthMemberV1(@RequestAttribute Long member_id) {
-        return memberService.findById(member_id);
+    public MemberInfoDto getAuthMemberV1(Principal principal) {
+        String memberId = principal.getName();
+        return memberService.findById(Long.parseLong(memberId));
     }
 
     @GetMapping("/api/v1/members")
-    public MemberService.FriendSearchResult searchFriendByEmail(@RequestParam String by,
-                                                                @RequestParam String value,
-                                                                @RequestAttribute Long member_id) {
-        MemberService.FriendSearchResult friendSearchResult = memberService.searchByFilter(by, value, member_id);
+    public MemberService.FriendSearchResult searchFriendByEmail(@RequestParam @NotBlank String by,
+                                                                @RequestParam @NotBlank String value,
+                                                                Principal principal) {
+        String memberId = principal.getName();
+        MemberService.FriendSearchResult friendSearchResult = memberService.searchByFilter(by, value, Long.parseLong(memberId));
 
         if (friendSearchResult == null)
             throw new EntityNotFoundException("멤버를 찾을 수 없음", ErrorCode.ENTITY_NOT_FOUND);
@@ -44,13 +49,15 @@ public class MemberApiController {
     }
 
     @PostMapping("/api/v1/members/me/relationships")
-    public void requestFriend(@RequestBody Long relatedId, @RequestAttribute Long member_id) {
-        memberService.requestFriend(member_id, relatedId);
+    public void requestFriend(@RequestBody Long relatedId, Principal principal) {
+        String memberId = principal.getName();
+        memberService.requestFriend(Long.parseLong(memberId), relatedId);
     }
 
     @PutMapping("/api/v1/members/me/relationships")
-    public void acceptFriend(@RequestBody Long relatedId, @RequestAttribute Long member_id) {
-        memberService.acceptFriend(member_id, relatedId);
+    public void acceptFriend(@RequestBody Long relatedId, Principal principal) {
+        String memberId = principal.getName();
+        memberService.acceptFriend(Long.parseLong(memberId), relatedId);
     }
 
     @GetMapping("/api/v1/members/exist")
@@ -65,7 +72,8 @@ public class MemberApiController {
     }
 
     @GetMapping("/api/v1/members/me/code")
-    public Map<String, String> getCode(@RequestAttribute Long member_id) {
-        return Collections.singletonMap("code", CryptUtil.encrypt(String.valueOf(member_id)));
+    public Map<String, String> getCode(Principal principal) {
+        String memberId = principal.getName();
+        return Collections.singletonMap("code", CryptUtil.encrypt(memberId));
     }
 }

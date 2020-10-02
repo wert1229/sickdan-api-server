@@ -2,6 +2,7 @@ package com.kdpark.sickdan.service;
 
 import com.kdpark.sickdan.api.DailyApiController;
 import com.kdpark.sickdan.domain.*;
+import com.kdpark.sickdan.dto.DailyDto;
 import com.kdpark.sickdan.repository.DailyRepository;
 import com.kdpark.sickdan.repository.MemberRepository;
 import lombok.Data;
@@ -22,11 +23,11 @@ public class DailyService {
     private final DailyRepository dailyRepository;
     private final MemberRepository memberRepository;
 
-    public void editDaily(Daily.DailyId id, Map<String, Object> params) {
+    public void editDaily(Daily.DailyId id, DailyDto.DayInfoUpdateRequest request) {
         Daily daily = dailyRepository.findById(id);
 
-        if (params.containsKey("bodyWeight")) daily.setBodyWeight((Double)params.get("bodyWeight"));
-        if (params.containsKey("walkCount")) daily.setWalkCount((Integer)params.get("walkCount"));
+        if (request.getBodyWeight() != null) daily.setBodyWeight(request.getBodyWeight());
+        if (request.getWalkCount() != null) daily.setWalkCount(request.getWalkCount());
     }
 
     public List<String> syncWalkCounts(Long memberId, Map<String, Integer> params) {

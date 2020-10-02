@@ -2,110 +2,121 @@ package com.kdpark.sickdan.api;
 
 import com.kdpark.sickdan.domain.Daily;
 import com.kdpark.sickdan.domain.Likes;
+import com.kdpark.sickdan.dto.DailyDto;
 import com.kdpark.sickdan.service.DailyService;
 import com.kdpark.sickdan.service.query.DailyQueryService;
 import com.kdpark.sickdan.service.query.DailyQueryService.DailyCommentDto;
 import com.kdpark.sickdan.service.query.DailyQueryService.DayDailyDto;
 import com.kdpark.sickdan.service.query.DailyQueryService.MonthDailyDto;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Size;
+import java.security.Principal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 @Log4j2
 @RestController
+@Validated
 @RequiredArgsConstructor
 public class DailyApiController {
     private final DailyQueryService dailyQueryService;
     private final DailyService dailyService;
 
     @GetMapping("/api/v1/members/me/dailies")
-    public List<MonthDailyDto> getMonthData(@RequestParam String yyyymm, @RequestAttribute Long member_id) {
-        List<MonthDailyDto> monthData = dailyQueryService.getMonthData(member_id, yyyymm);
+    public List<MonthDailyDto> getMonthData(@RequestParam @Size(min = 6, max = 6) String yyyymm,
+                                            Principal principal) {
+        String memberId = principal.getName();
 
-        return monthData;
+        return dailyQueryService.getMonthData(Long.parseLong(memberId), yyyymm);
     }
 
     @GetMapping("/api/v1/members/me/dailies/{yyyymmdd}")
-    public DayDailyDto getDayData(@PathVariable String yyyymmdd, @RequestAttribute Long member_id) {
-        DayDailyDto dayData = dailyQueryService.getDayData(member_id, yyyymmdd);
+    public DayDailyDto getDayData(@PathVariable @Size(min = 8, max = 8) String yyyymmdd,
+                                  Principal principal) {
+        String memberId = principal.getName();
 
-        return dayData;
+        return dailyQueryService.getDayData(Long.parseLong(memberId), yyyymmdd);
     }
 
     @GetMapping("/api/v1/members/{memberId}/dailies")
-    public List<MonthDailyDto> getMonthData(@PathVariable Long memberId, @RequestParam String yyyymm) {
-        List<MonthDailyDto> monthData = dailyQueryService.getMonthData(memberId, yyyymm);
+    public List<MonthDailyDto> getMonthData(@PathVariable @Min(1) Long memberId,
+                                            @RequestParam @Size(min = 6, max = 6) String yyyymm) {
 
-        return monthData;
+        return dailyQueryService.getMonthData(memberId, yyyymm);
     }
 
     @GetMapping("/api/v1/members/{memberId}/dailies/{yyyymmdd}")
-    public DayDailyDto getDayData(@PathVariable Long memberId, @PathVariable String yyyymmdd) {
-        DayDailyDto dayData = dailyQueryService.getDayData(memberId, yyyymmdd);
+    public DayDailyDto getDayData(@PathVariable @Min(1) Long memberId,
+                                  @PathVariable @Size(min = 8, max = 8) String yyyymmdd) {
 
-        return dayData;
+        return dailyQueryService.getDayData(memberId, yyyymmdd);
     }
 
     @PutMapping("/api/v1/members/me/dailies/{yyyymmdd}")
-    public void editDayData(@PathVariable String yyyymmdd, @RequestAttribute Long member_id,
-                            @RequestBody Map<String, Object> params) {
+    public void editDayData(@PathVariable @Size(min = 8, max = 8) String yyyymmdd,
+                            @RequestBody DailyDto.DayInfoUpdateRequest request,
+                            Principal principal) {
 
-        dailyService.editDaily(new Daily.DailyId(member_id, yyyymmdd), params);
+        String memberId = principal.getName();
+        dailyService.editDaily(new Daily.DailyId(Long.parseLong(memberId), yyyymmdd), request);
     }
 
-    @PutMapping("/api/v1/members/me/dailies")
-    public DailyResult<List<String>> editDayData(@RequestBody Map<String, Integer> params, @RequestAttribute Long member_id) {
-        List<String> doneList = dailyService.syncWalkCounts(member_id, params);
+    @PutMapping("/api/v1/members/me/dailies/walkcounts")
+    public DailyDto.DailyResult<List<String>> editDayData(@RequestBody Map<String, Integer> params,
+                                                          Principal principal) {
 
-        return new DailyResult<>(doneList);
+        String memberId = principal.getName();
+        List<String> doneList = dailyService.syncWalkCounts(Long.parseLong(memberId), params);
+
+        return new DailyDto.DailyResult<>(doneList);
     }
 
     @GetMapping("/api/v1/members/{memberId}/dailies/{yyyymmdd}/comments")
-    public List<DailyCommentDto> getDayComments(@PathVariable Long memberId, @PathVariable String yyyymmdd) {
+    public List<DailyCommentDto> getDayComments(@PathVariable @Min(1) Long memberId,
+                                                @PathVariable @Size(min = 8, max = 8) String yyyymmdd) {
         return dailyQueryService.getDayComments(memberId, yyyymmdd);
     }
 
     @PostMapping("/api/v1/members/{memberId}/dailies/{yyyymmdd}/comments")
-    public void writeComment(@PathVariable Long memberId, @PathVariable String yyyymmdd,
-                             @RequestBody CommentWriteRequest request, @RequestAttribute Long member_id) {
+    public void writeComment(@PathVariable @Min(1) Long memberId,
+                             @PathVariable @Size(min = 8, max = 8) String yyyymmdd,
+                             @RequestBody @Valid DailyDto.CommentWriteRequest request,
+                             Principal principal) {
 
+        String writerMemberId = principal.getName();
         dailyService.writeComment(new Daily.DailyId(memberId, yyyymmdd),
-                request.getDescription(), request.getParentId(), member_id);
+                request.getDescription(), request.getParentId(), Long.parseLong(writerMemberId));
     }
 
     @PostMapping("/api/v1/members/{memberId}/dailies/{yyyymmdd}/likes")
-    public void doLike(@PathVariable Long memberId, @PathVariable String yyyymmdd, @RequestAttribute Long member_id) {
-        dailyService.doLike(new Daily.DailyId(memberId, yyyymmdd), member_id);
+    public void doLike(@PathVariable @Min(1) Long memberId,
+                       @PathVariable @Size(min = 8, max = 8) String yyyymmdd,
+                       Principal principal) {
+        String writerMemberId = principal.getName();
+        dailyService.doLike(new Daily.DailyId(memberId, yyyymmdd), Long.parseLong(writerMemberId));
     }
 
     @DeleteMapping("/api/v1/members/{memberId}/dailies/{yyyymmdd}/likes")
-    public void undoLike(@PathVariable Long memberId, @PathVariable String yyyymmdd, @RequestAttribute Long member_id) {
-        dailyService.undoLike(new Daily.DailyId(memberId, yyyymmdd), member_id);
+    public void undoLike(@PathVariable @Min(1) Long memberId,
+                         @PathVariable @Size(min = 8, max = 8) String yyyymmdd,
+                         Principal principal) {
+        String writerMemberId = principal.getName();
+        dailyService.undoLike(new Daily.DailyId(memberId, yyyymmdd), Long.parseLong(writerMemberId));
     }
 
     @GetMapping("/api/v1/members/{memberId}/dailies/{yyyymmdd}/likes/me")
-    public Map<String, Boolean> isLiked(@PathVariable Long memberId, @PathVariable String yyyymmdd, @RequestAttribute Long member_id) {
-        Likes like = dailyQueryService.getLike(memberId, yyyymmdd, member_id);
+    public Map<String, Boolean> isLiked(@PathVariable @Min(1) Long memberId,
+                                        @PathVariable @Size(min = 8, max = 8) String yyyymmdd,
+                                        Principal principal) {
+        String writerMemberId = principal.getName();
+        Likes like = dailyQueryService.getLike(memberId, yyyymmdd, Long.parseLong(writerMemberId));
         return Collections.singletonMap("isLiked", like != null);
-    }
-
-    @Data
-    static class CommentWriteRequest {
-        private String description;
-        private Long parentId;
-    }
-
-    @Data
-    static class DailyResult<T> {
-        private T data;
-
-        public DailyResult(T data) {
-            this.data = data;
-        }
     }
 }
