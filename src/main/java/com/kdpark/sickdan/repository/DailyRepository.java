@@ -3,8 +3,7 @@ package com.kdpark.sickdan.repository;
 import com.kdpark.sickdan.domain.Comment;
 import com.kdpark.sickdan.domain.Daily;
 import com.kdpark.sickdan.domain.Likes;
-import lombok.Builder;
-import lombok.Data;
+import com.kdpark.sickdan.dto.DailyDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -47,8 +46,8 @@ public class DailyRepository {
                 .getResultList();
     }
 
-    public DailyCountInfo getCommentAndLikeCount(Long memberId, String yyyymmdd) {
-        return (DailyCountInfo) em.createNativeQuery(
+    public DailyDto.DailyCountInfo getCommentAndLikeCount(Long memberId, String yyyymmdd) {
+        return (DailyDto.DailyCountInfo) em.createNativeQuery(
                 "select " +
                         "    (select count(comment_id) " +
                         "     from   comment c " +
@@ -88,15 +87,4 @@ public class DailyRepository {
         return em.find(Likes.class, id);
     }
 
-    @Data
-    public static class DailyCountInfo {
-        private int commentCount;
-        private int likeCount;
-
-        @Builder
-        public DailyCountInfo(int commentCount, int likeCount) {
-            this.commentCount = commentCount;
-            this.likeCount = likeCount;
-        }
-    }
 }

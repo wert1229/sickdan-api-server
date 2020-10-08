@@ -8,7 +8,9 @@ import com.kdpark.sickdan.error.exception.EntityNotFoundException;
 import com.kdpark.sickdan.repository.DailyRepository;
 import com.kdpark.sickdan.repository.MealReposity;
 import com.kdpark.sickdan.repository.MemberRepository;
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -18,8 +20,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@TestMethodOrder(MethodOrderer.Alphanumeric.class)
 class MealServiceTest {
-
     @InjectMocks
     MealService mealService;
 
@@ -31,63 +33,69 @@ class MealServiceTest {
     MemberRepository memberRepository;
 
     @Test
-    public void 식단추가() throws Exception {
+    public void 식단기록_정상처리() throws Exception {
+        //given
+        Daily daily = mock(Daily.class);
+
+        when(dailyRepository.findById(any()))
+                .thenReturn(daily);
+
+        //when
+        mealService.record(any(), "test", MealCategory.BREAKFAST);
+
+        //then
+        verify(daily, times(1)).recordMeal(any());
+    }
+
+    @Test
+    public void 식단기록_정상처리_일자정보생성() throws Exception {
         //given
         Member member = Member.builder()
+                .id(2L)
                 .build();
 
-        Daily daily = Daily.builder()
-                .member(member)
-                .build();
+        Daily daily = null;
 
-        when(dailyRepository.findById(new Daily.DailyId(1L, "20200831"))).thenReturn(daily);
+        when(dailyRepository.findById(any()))
+                .thenReturn(daily);
+        when(memberRepository.findById(any()))
+                .thenReturn(member);
 
         //when
-        mealService.record(new Daily.DailyId(1L, "20200831"), "test", MealCategory.BREAKFAST);
+        mealService.record(new Daily.DailyId(1L, "20200909"), "test", MealCategory.BREAKFAST);
 
         //then
+        verify(dailyRepository, times(1)).save(any());
     }
 
     @Test
-    public void 식단추가_Daily없을시() throws Exception {
+    public void 식단_사진추가_정상처리() throws Exception {
         //given
-        Member member = Member.builder()
-                .build();
-        Daily.DailyId dailyId = new Daily.DailyId(1L, "20200831");
-        Daily daily = Daily.builder()
-                .id(dailyId)
-                .member(member)
-                .build();
+        Meal meal = mock(Meal.class);
 
-        when(dailyRepository.findById(dailyId)).thenReturn(null);
-        when(memberRepository.findById(1L)).thenReturn(member);
+        when(mealReposity.findById(any()))
+                .thenReturn(meal);
 
         //when
-        mealService.record(dailyId, "test", MealCategory.BREAKFAST);
+        mealService.addPhoto(1L, "originName", "fileName", 10000L, "url");
 
         //then
-        verify(dailyRepository, times(1)).save(any(Daily.class));
+        verify(meal, times(1)).addPhoto(any());
     }
 
     @Test
-    public void 사진추가() throws Exception {
+    public void 식단_사진추가_식단정보없음() throws Exception {
         //given
-        when(mealReposity.findById(1L)).thenReturn(Meal.createMeal("testMeal", MealCategory.BREAKFAST));
+        Meal meal = null;
 
-        //when
-        mealService.addPhoto(1L, "test", "test", 100L, "test.com");
-
-        //then
-    }
-
-    @Test
-    public void 사진추가_식단없음() throws Exception {
-        //given
+        when(mealReposity.findById(any()))
+                .thenReturn(meal);
 
         //when
 
         //then
         assertThrows(EntityNotFoundException.class, () ->
-                mealService.addPhoto(-1L, "test", "test", 100L, "test.com"));
+                mealService.addPhoto(1L, "originName", "fileName", 10000L, "url"));
     }
+
 }

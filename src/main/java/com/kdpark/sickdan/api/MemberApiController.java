@@ -1,11 +1,12 @@
 package com.kdpark.sickdan.api;
 
 import com.kdpark.sickdan.domain.Member;
+import com.kdpark.sickdan.dto.MemberDto;
 import com.kdpark.sickdan.error.common.ErrorCode;
 import com.kdpark.sickdan.error.exception.EntityNotFoundException;
 import com.kdpark.sickdan.repository.MemberRepository;
 import com.kdpark.sickdan.service.MemberService;
-import com.kdpark.sickdan.service.MemberService.MemberInfoDto;
+import com.kdpark.sickdan.dto.MemberDto.MemberInfo;
 import com.kdpark.sickdan.util.CryptUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -25,22 +26,22 @@ public class MemberApiController {
     private final MemberRepository memberRepository;
 
     @GetMapping("/api/v1/members/{memberId}")
-    public MemberInfoDto getMemberV1(@PathVariable @Min(1) Long memberId) {
+    public MemberInfo getMemberV1(@PathVariable @Min(1) Long memberId) {
         return memberService.findById(memberId);
     }
 
     @GetMapping("/api/v1/members/me")
-    public MemberInfoDto getAuthMemberV1(Principal principal) {
+    public MemberInfo getAuthMemberV1(Principal principal) {
         String memberId = principal.getName();
         return memberService.findById(Long.parseLong(memberId));
     }
 
     @GetMapping("/api/v1/members")
-    public MemberService.FriendSearchResult searchFriendByEmail(@RequestParam @NotBlank String by,
-                                                                @RequestParam @NotBlank String value,
-                                                                Principal principal) {
+    public MemberDto.FriendSearchResult searchFriendByFilter(@RequestParam @NotBlank String by,
+                                                            @RequestParam @NotBlank String value,
+                                                            Principal principal) {
         String memberId = principal.getName();
-        MemberService.FriendSearchResult friendSearchResult = memberService.searchByFilter(by, value, Long.parseLong(memberId));
+        MemberDto.FriendSearchResult friendSearchResult = memberService.searchByFilter(by, value, Long.parseLong(memberId));
 
         if (friendSearchResult == null)
             throw new EntityNotFoundException("멤버를 찾을 수 없음", ErrorCode.ENTITY_NOT_FOUND);

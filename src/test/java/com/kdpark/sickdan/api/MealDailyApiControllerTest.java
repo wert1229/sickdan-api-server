@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(MealApiController.class)
 @TestMethodOrder(MethodOrderer.Alphanumeric.class)
-class MealApiControllerTest {
+class MealDailyApiControllerTest {
     @TestConfiguration
     static class AdditionalConfig {
         @Bean

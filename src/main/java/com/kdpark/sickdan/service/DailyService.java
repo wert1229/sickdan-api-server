@@ -3,6 +3,8 @@ package com.kdpark.sickdan.service;
 import com.kdpark.sickdan.api.DailyApiController;
 import com.kdpark.sickdan.domain.*;
 import com.kdpark.sickdan.dto.DailyDto;
+import com.kdpark.sickdan.error.common.ErrorCode;
+import com.kdpark.sickdan.error.exception.EntityNotFoundException;
 import com.kdpark.sickdan.repository.DailyRepository;
 import com.kdpark.sickdan.repository.MemberRepository;
 import lombok.Data;
@@ -25,6 +27,7 @@ public class DailyService {
 
     public void editDaily(Daily.DailyId id, DailyDto.DayInfoUpdateRequest request) {
         Daily daily = dailyRepository.findById(id);
+        if (daily == null) throw new EntityNotFoundException("Daily not found", ErrorCode.ENTITY_NOT_FOUND);
 
         if (request.getBodyWeight() != null) daily.setBodyWeight(request.getBodyWeight());
         if (request.getWalkCount() != null) daily.setWalkCount(request.getWalkCount());
@@ -59,8 +62,10 @@ public class DailyService {
     public void writeComment(Daily.DailyId dailyId, String description, Long parentId, Long member_id) {
         Daily daily = dailyRepository.findById(dailyId);
         Member writer = memberRepository.findById(member_id);
-        Comment parent = null;
 
+        if (writer == null) throw new EntityNotFoundException("comment writer not found", ErrorCode.ENTITY_NOT_FOUND);
+
+        Comment parent = null;
         if (parentId != null)
             parent = dailyRepository.getCommentById(parentId);
 
@@ -85,12 +90,5 @@ public class DailyService {
         Daily daily = dailyRepository.findById(dailyId);
 
         daily.undoLike(liker);
-    }
-
-    @Data
-    public static class MealOrderInfo {
-        private Long id;
-        private Long prevId;
-        private MealCategory category;
     }
 }

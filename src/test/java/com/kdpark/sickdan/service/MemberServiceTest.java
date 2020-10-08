@@ -3,11 +3,14 @@ package com.kdpark.sickdan.service;
 import com.kdpark.sickdan.domain.Member;
 import com.kdpark.sickdan.domain.MemberRelationship;
 import com.kdpark.sickdan.domain.RelationshipStatus;
+import com.kdpark.sickdan.dto.MemberDto;
 import com.kdpark.sickdan.error.exception.EntityNotFoundException;
+import com.kdpark.sickdan.error.exception.InvalidParameterException;
 import com.kdpark.sickdan.repository.MemberRepository;
 import com.kdpark.sickdan.util.CryptUtil;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -20,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@TestMethodOrder(MethodOrderer.Alphanumeric.class)
 class MemberServiceTest {
 
     @InjectMocks
@@ -27,9 +31,6 @@ class MemberServiceTest {
 
     @Mock
     MemberRepository memberRepository;
-
-    @BeforeEach
-    public void setup() {}
 
     @Test
     public void 회원가입_로컬_정상처리() throws Exception {
@@ -90,7 +91,7 @@ class MemberServiceTest {
                 .build());
 
         //when
-        MemberService.FriendSearchResult result =
+        MemberDto.FriendSearchResult result =
                 memberService.searchByFilter("email", emailSearchingFor, requestingMemberId);
 
         //then
@@ -125,7 +126,7 @@ class MemberServiceTest {
         when(memberRepository.findByEmail(emailSearchingFor)).thenReturn(requestedMember);
 
         //when
-        MemberService.FriendSearchResult result =
+        MemberDto.FriendSearchResult result =
                 memberService.searchByFilter("email", emailSearchingFor, requestingMemberId);
 
         //then
@@ -145,15 +146,26 @@ class MemberServiceTest {
     }
 
     @Test
-    public void 암호화테스트() throws Exception {
+    public void 회원검색_부정확한_필터() throws Exception {
         //given
-        String text = "2003";
 
         //when
-        String encrypted = CryptUtil.encrypt(text);
-        String decrypted = CryptUtil.decrypt(encrypted);
 
         //then
-        assertEquals(text, decrypted);
+        assertThrows(InvalidParameterException.class, () ->
+                memberService.searchByFilter("invaild","park@naver.com", 1L));
+
+    }
+
+    @Test
+    public void 회원검색_코드_잘못된코드() throws Exception {
+        //given
+
+        //when
+
+        //then
+        assertThrows(InvalidParameterException.class, () ->
+                memberService.searchByFilter("code","1111", 1L));
+
     }
 }

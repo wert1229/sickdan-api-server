@@ -1,17 +1,22 @@
 package com.kdpark.sickdan.domain;
 
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
 @Getter
 //@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EntityListeners(AuditingEntityListener.class)
 @NamedQuery(name="Member.relationships", query=
         "select m " +
         "from Member m " +
@@ -40,6 +45,12 @@ public class Member implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     private Provider provider;
+
+    @CreatedDate
+    private LocalDateTime createdDateTime;
+
+    @LastModifiedDate
+    private LocalDateTime updatedDateTime;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default

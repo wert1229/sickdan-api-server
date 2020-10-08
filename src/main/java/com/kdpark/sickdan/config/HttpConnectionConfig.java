@@ -9,7 +9,6 @@ import org.springframework.web.client.RestTemplate;
 
 @Configuration
 public class HttpConnectionConfig {
-
     @Bean
     public RestTemplate getCustomRestTemplate(){
         HttpComponentsClientHttpRequestFactory httpRequestFactory = new HttpComponentsClientHttpRequestFactory();

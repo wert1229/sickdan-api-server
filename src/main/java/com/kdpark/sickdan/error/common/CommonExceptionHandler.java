@@ -69,6 +69,13 @@ public class CommonExceptionHandler {
         return new ResponseEntity<>(response, e.getErrorCode().getStatus());
     }
 
+    @ExceptionHandler(InvalidParameterException.class)
+    protected ResponseEntity<ErrorResponse> handleAuthException(InvalidParameterException e) {
+        log.error("InvalidParameterException", e);
+        final ErrorResponse response = ErrorResponse.of(e.getErrorCode());
+        return new ResponseEntity<>(response, e.getErrorCode().getStatus());
+    }
+
 //    protected ResponseEntity<ErrorResponse> handleBindException(MethodArgumentNotValidException e) {
 //        log.error("MethodArgumentNotValidException", e);
 //        final ErrorResponse response = ErrorResponse.of(ErrorCode.INVALID_INPUT_VALUE, e.getBindingResult());

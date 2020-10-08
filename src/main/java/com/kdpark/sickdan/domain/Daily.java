@@ -1,6 +1,6 @@
 package com.kdpark.sickdan.domain;
 
-import com.kdpark.sickdan.repository.DailyRepository;
+import com.kdpark.sickdan.dto.DailyDto;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -18,7 +18,7 @@ import java.util.*;
 @SqlResultSetMapping(
         name="CommentAndLikeCountMapping",
         classes = @ConstructorResult(
-                targetClass = DailyRepository.DailyCountInfo.class,
+                targetClass = DailyDto.DailyCountInfo.class,
                 columns = {
                         @ColumnResult(name="commentCount", type = Integer.class),
                         @ColumnResult(name="likeCount", type = Integer.class)

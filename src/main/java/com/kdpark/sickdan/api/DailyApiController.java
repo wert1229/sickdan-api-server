@@ -5,9 +5,8 @@ import com.kdpark.sickdan.domain.Likes;
 import com.kdpark.sickdan.dto.DailyDto;
 import com.kdpark.sickdan.service.DailyService;
 import com.kdpark.sickdan.service.query.DailyQueryService;
-import com.kdpark.sickdan.service.query.DailyQueryService.DailyCommentDto;
-import com.kdpark.sickdan.service.query.DailyQueryService.DayDailyDto;
-import com.kdpark.sickdan.service.query.DailyQueryService.MonthDailyDto;
+import com.kdpark.sickdan.dto.DailyDto.DailyCommentDto;
+import com.kdpark.sickdan.dto.DailyDto.DayDailyDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.validation.annotation.Validated;
@@ -30,8 +29,8 @@ public class DailyApiController {
     private final DailyService dailyService;
 
     @GetMapping("/api/v1/members/me/dailies")
-    public List<MonthDailyDto> getMonthData(@RequestParam @Size(min = 6, max = 6) String yyyymm,
-                                            Principal principal) {
+    public List<DailyDto.MonthDaily> getMonthData(@RequestParam @Size(min = 6, max = 6) String yyyymm,
+                                                  Principal principal) {
         String memberId = principal.getName();
 
         return dailyQueryService.getMonthData(Long.parseLong(memberId), yyyymm);
@@ -46,8 +45,8 @@ public class DailyApiController {
     }
 
     @GetMapping("/api/v1/members/{memberId}/dailies")
-    public List<MonthDailyDto> getMonthData(@PathVariable @Min(1) Long memberId,
-                                            @RequestParam @Size(min = 6, max = 6) String yyyymm) {
+    public List<DailyDto.MonthDaily> getMonthData(@PathVariable @Min(1) Long memberId,
+                                                  @RequestParam @Size(min = 6, max = 6) String yyyymm) {
 
         return dailyQueryService.getMonthData(memberId, yyyymm);
     }
