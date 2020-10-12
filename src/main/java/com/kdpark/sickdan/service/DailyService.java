@@ -86,9 +86,9 @@ public class DailyService {
     }
 
     public void undoLike(Daily.DailyId dailyId, Long member_id) {
-        Member liker = memberRepository.findById(member_id);
-        Daily daily = dailyRepository.findById(dailyId);
-
-        daily.undoLike(liker);
+//        Member liker = memberRepository.findById(member_id);
+//        Daily daily = dailyRepository.findById(dailyId);
+        Likes like = dailyRepository.getLikeById(new Likes.LikeId(dailyId, member_id));
+        dailyRepository.undoLike(like);
     }
 }

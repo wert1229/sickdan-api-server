@@ -87,4 +87,8 @@ public class DailyRepository {
         return em.find(Likes.class, id);
     }
 
+    public void undoLike(Likes likes) {
+        em.remove(likes);
+    }
+
 }
